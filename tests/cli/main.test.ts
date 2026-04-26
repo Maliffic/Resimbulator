@@ -41,3 +41,21 @@ describe('CLI', () => {
     expect(out.results).toHaveLength(5);
   });
 });
+
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+
+const FIXTURES_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../fixtures/clipboard');
+
+describe('CLI parse command', () => {
+  it('parses clipboard text from stdin into a ParsedItem', async () => {
+    const clipboard = readFileSync(resolve(FIXTURES_DIR, 'rare-with-hints.txt'), 'utf8');
+    const input = JSON.stringify({ command: 'parse', clipboard });
+    const out = await runCli(input);
+    expect(out.command).toBe('parse');
+    if (out.command !== 'parse') throw new Error('typeguard');
+    expect(out.parsed.rarity).toBe('Rare');
+    expect(out.parsed.prefixes).toHaveLength(2);
+  });
+});

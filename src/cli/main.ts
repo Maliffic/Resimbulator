@@ -3,21 +3,25 @@ import {
   probabilityExact, probabilityMonteCarlo, simulateBatch, SeededRng,
 } from '../lib/recombinator/index.js';
 import type { Item, Mod } from '../lib/recombinator/index.js';
+import { parse as parseClipboard } from '../lib/poe-clipboard/index.js';
+import type { ParsedItem } from '../lib/poe-clipboard/index.js';
 
-export type CliInput = {
-  command: 'probability' | 'simulate';
-  seed?: number;
-  trials?: number;
-  item1: Item;
-  item2: Item;
-};
+export type CliInput =
+  | { command: 'probability' | 'simulate'; seed?: number; trials?: number; item1: Item; item2: Item }
+  | { command: 'parse'; clipboard: string };
 
 export type CliOutput =
   | { command: 'probability'; exact: number; monteCarlo: number }
-  | { command: 'simulate'; results: Array<{ baseFromItem: 1 | 2; prefixes: string[]; suffixes: string[] }> };
+  | { command: 'simulate'; results: Array<{ baseFromItem: 1 | 2; prefixes: string[]; suffixes: string[] }> }
+  | { command: 'parse'; parsed: ParsedItem };
 
 export async function runCli(jsonInput: string): Promise<CliOutput> {
   const input = JSON.parse(jsonInput) as CliInput;
+
+  if (input.command === 'parse') {
+    return { command: 'parse', parsed: parseClipboard(input.clipboard) };
+  }
+
   const seed = input.seed ?? Date.now();
   const rng = new SeededRng(seed);
 
