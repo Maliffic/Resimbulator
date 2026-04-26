@@ -1,6 +1,6 @@
 # Resimbulator
 
-A web-app simulator for Path of Exile 1's patch-3.25 (Settlers of Kalguur) Recombinator. Currently in active build; **this repository contains the engine + clipboard parser layers** as of Plan 2.
+A web-app simulator for Path of Exile 1's patch-3.25 (Settlers of Kalguur) Recombinator. Currently in active build; **this repository contains the engine + clipboard parser + categorizer layers** as of Plan 3.
 
 ## What's here so far
 
@@ -16,18 +16,24 @@ A web-app simulator for Path of Exile 1's patch-3.25 (Settlers of Kalguur) Recom
 - Handles items with and without "Show Modifier Type Hints" enabled
 - Detects rarity, item class, base, item level, quality, influence, corrupted, synthesised
 - Extracts mod tier, name, tags, and `crafted/veiled/fractured/implicit` flags
-- Sorts mods into `prefixes`, `suffixes`, `implicits`, and `unknown` (the last for type-hints-off cases that need Plan 3 to categorize)
-- Validated against 10 fixture variations (rare, magic, normal, unique, hinted, hint-less, fractured, crafted, influenced, corrupted, synthesised)
+- Sorts mods into `prefixes`, `suffixes`, `implicits`, and `unknown`
+- Validated against 10 fixture variations
+
+**Mods + categorizer (Plan 3):**
+- Hand-curated base-items database (~40 popular Settlers crafting bases)
+- RePoE-derived mod database build script (`npm run update-mod-db`)
+- Categorizer: maps each `ParsedMod` to the correct `ModCategory` and applies per-mod requirements (`requiresInfluence`, `requiresDefenceTag`, `allowedAttributeBases`, `hostItemId`)
+- Translator: `ParsedItem` → engine `Item`, ready for the simulator
 
 **CLI (`npm run engine`):**
 - `probability` — exact + Monte Carlo probability of getting desired mods
 - `simulate` — N rolled outcomes
 - `parse` — clipboard text → `ParsedItem`
+- `translate` — clipboard text + mod-DB → engine `Item`
 
 ## What's coming (planned)
 
-- **Plan 3:** RePoE-backed mod database + categorizer (translates `ParsedItem` to engine `Item`)
-- **Plan 4:** SvelteKit UI, persistence, share-URL, deploy
+- **Plan 4:** SvelteKit UI, persistence, share-URL, Vercel deploy
 
 ## Setup
 
@@ -36,6 +42,14 @@ npm install
 npm run typecheck
 npm test
 ```
+
+To populate the production mod database (one-time, requires network):
+
+```bash
+npm run update-mod-db
+```
+
+This fetches RePoE and writes `static/mod-db.json` (~1-2 MB gzipped). Tests don't require this — they use a small inline fixture.
 
 ## CLI
 
@@ -52,42 +66,53 @@ echo '{
 }' | npm run engine
 ```
 
-`command` is `"probability"` (returns exact + Monte Carlo) or `"simulate"` (returns N rolled results). Mods are tagged as desired by setting `desired: true` on the mod object.
-
 **Parse a clipboard dump:**
 ```bash
 cat my-item.txt | python3 -c "import json,sys; print(json.dumps({'command':'parse','clipboard':sys.stdin.read()}))" | npm run engine
 ```
 
-Returns a JSON `ParsedItem` with `prefixes`, `suffixes`, `implicits`, and `unknown` mods (the last of which Plan 3's categorizer will resolve).
+**Translate clipboard → engine `Item`:**
+```bash
+cat my-item.txt | python3 -c "
+import json, sys
+clip = sys.stdin.read()
+db = json.load(open('tests/fixtures/mods/fixture-mod-db.json'))  # or static/mod-db.json after update
+print(json.dumps({'command': 'translate', 'clipboard': clip, 'modDb': db}))
+" | npm run engine
+```
 
 See `tests/cli/main.test.ts` for the full input shapes.
 
 ## Layout
 
 ```
-src/lib/recombinator/    pure-TS engine (no UI deps)
-src/lib/poe-clipboard/   clipboard parser (no UI deps)
+src/lib/recombinator/    pure-TS engine
+src/lib/poe-clipboard/   clipboard parser
+src/lib/mods/            mod database + categorizer + translator
 src/cli/                 stdin/stdout CLI
+scripts/                 build-mod-db.ts (npm run update-mod-db)
 tests/recombinator/      engine unit + integration tests
 tests/poe-clipboard/     parser unit + snapshot tests
+tests/mods/              mods/categorizer/translator tests
 tests/cli/               CLI tests
-tests/fixtures/          guide worked-example fixtures + clipboard fixtures
+tests/fixtures/          guide examples + clipboard fixtures + mod-DB fixture
 docs/superpowers/        design + implementation plans
 ```
 
 ## Validation
 
-`npm test` executes the full suite (currently 107 tests across 19 files):
+`npm test` executes the full suite. Coverage:
 
 - Engine unit tests (types, rng, table1, ilevel, eligibility, pick, special-cases, simulate, probability)
 - Engine guide-examples (§6, §7)
-- Engine cross-check property test (exact ≈ Monte Carlo on random scenarios)
+- Engine cross-check property test
 - Parser unit tests (tokenize, header, mod-block, flags)
-- Parser fixture snapshot tests (10 fixture items)
-- Parser field-level tests (rarity, flag detection, mod counts per fixture)
-- Public-API smoke tests (engine, parser)
-- CLI integration tests (probability, simulate, parse)
+- Parser fixture snapshot + field-level tests (10 fixture items)
+- Mod-DB loader tests
+- Categorizer tests (11 rule-coverage cases)
+- Translator tests (parsed → engine round trips)
+- Public-API smoke tests (engine, parser, mods)
+- CLI integration tests (probability, simulate, parse, translate)
 
 ## License
 
