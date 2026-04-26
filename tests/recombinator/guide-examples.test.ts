@@ -43,4 +43,10 @@ describe('guide examples', () => {
     const mc = probabilityMonteCarlo(item1, item2, desired, 50_000, rng);
     expect(Math.abs(mc - expected)).toBeLessThan(tol);
   });
+
+  it('§7: wand counterweight (3 desired prefixes via exclusive counterweight) ≈ 35%', () => {
+    const { item1, item2, desired, expected, tol } = loadFixture('guide-wand-counterweight.json');
+    const exact = probabilityExact(item1, item2, desired);
+    expect(Math.abs(exact - expected)).toBeLessThan(tol);
+  });
 });

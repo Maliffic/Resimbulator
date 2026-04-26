@@ -1,0 +1,50 @@
+{
+  "_comment": "Guide §7 wand counterweight: 3 non-exclusive desired prefixes (zaffre, archmage, runic) across two wands. Both items have exclusive prefixes (crafted) and exclusive suffixes (multimod, aspect, named-crafted). Guide claims ~35% via '1/2 × 0.72'. This is the unconditional P(all 3 desired on result) and matches probabilityExact directly.",
+  "item1": {
+    "id": "wand_a",
+    "base": "Opal Wand",
+    "itemClass": "Wands",
+    "itemLevel": 86,
+    "attributeBase": "int",
+    "defenceTags": [],
+    "influence": null,
+    "corrupted": false,
+    "synthesised": false,
+    "implicits": [],
+    "prefixes": [
+      { "id": "zaffre", "affix": "prefix", "category": "RegularExplicit", "name": "Zaffre", "tier": 1, "statText": "+# Mana" },
+      { "id": "archmage", "affix": "prefix", "category": "RegularExplicit", "name": "Archmage", "tier": 2, "statText": "+# spell/mana" },
+      { "id": "crafted_pref_a", "affix": "prefix", "category": "ExclusiveCrafted", "name": "Crafted A", "tier": 1, "statText": "crafted" }
+    ],
+    "suffixes": [
+      { "id": "filler_a", "affix": "suffix", "category": "RegularExplicit", "name": "Filler A", "tier": 1, "statText": "filler" },
+      { "id": "aspect_a", "affix": "suffix", "category": "ExclusiveBeastAspect", "name": "Aspect", "tier": 1, "statText": "aspect" },
+      { "id": "named_craft_suf_a", "affix": "suffix", "category": "ExclusiveCrafted", "name": "of the Order", "tier": 1, "statText": "named crafted" }
+    ]
+  },
+  "item2": {
+    "id": "wand_b",
+    "base": "Opal Wand",
+    "itemClass": "Wands",
+    "itemLevel": 86,
+    "attributeBase": "int",
+    "defenceTags": [],
+    "influence": null,
+    "corrupted": false,
+    "synthesised": false,
+    "implicits": [],
+    "prefixes": [
+      { "id": "runic", "affix": "prefix", "category": "RegularExplicit", "name": "Runic", "tier": 1, "statText": "+# spell damage" },
+      { "id": "crafted_pref_b1", "affix": "prefix", "category": "ExclusiveCrafted", "name": "Tora's", "tier": 1, "statText": "crafted" },
+      { "id": "crafted_pref_b2", "affix": "prefix", "category": "ExclusiveCrafted", "name": "It's", "tier": 1, "statText": "crafted" }
+    ],
+    "suffixes": [
+      { "id": "filler_b", "affix": "suffix", "category": "RegularExplicit", "name": "Filler B", "tier": 1, "statText": "filler" },
+      { "id": "multimod", "affix": "suffix", "category": "ExclusiveCrafted", "name": "Can have multiple Crafted", "tier": 1, "statText": "multimod" },
+      { "id": "named_craft_suf_b", "affix": "suffix", "category": "ExclusiveCrafted", "name": "Chosen", "tier": 1, "statText": "named crafted" }
+    ]
+  },
+  "desired": ["zaffre", "archmage", "runic"],
+  "expectedProbability": 0.35,
+  "tolerance": 0.07
+}
