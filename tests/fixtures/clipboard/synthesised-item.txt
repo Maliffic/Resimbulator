@@ -1,0 +1,14 @@
+Item Class: Gloves
+Rarity: Rare
+Sample Item
+Synthesised Sorcerer Gloves
+--------
+Item Level: 86
+--------
+Synthesised Item
+--------
+{ Implicit Modifier — Life }
++25 to maximum Life (implicit)
+--------
+{ Prefix Modifier "Hale" (Tier: 1) — Life }
++100 to maximum Life

@@ -1,0 +1,24 @@
+Item Class: Body Armours
+Rarity: Rare
+Cataclysm Veil
+Sacrificial Garb
+--------
+Quality: +20% (augmented)
+Armour: 850 (augmented)
+Energy Shield: 167 (augmented)
+--------
+Requirements:
+Level: 70
+Str: 86
+Int: 86
+--------
+Sockets: G-G-R-R-R-R
+--------
+Item Level: 86
+--------
+{ Prefix Modifier "Tyrannical" (Tier: 1) — Damage, Attack, Physical }
+166% increased Physical Damage
+{ Prefix Modifier "Brisk's" (Tier: 5) — Speed }
+8% increased Movement Speed
+{ Suffix Modifier "of Insulation" (Tier: 5) — Elemental, Resistance }
++19% to Cold Resistance

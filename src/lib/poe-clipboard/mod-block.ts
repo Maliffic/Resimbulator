@@ -55,6 +55,10 @@ export function parseModSection(section: string[]): ParsedMod[] {
   let i = 0;
   while (i < section.length) {
     const line = section[i]!;
+    if (line.trim() === '') {
+      i++;
+      continue;
+    }
     const hint = parseHint(line);
     if (hint) {
       i++;

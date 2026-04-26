@@ -1,0 +1,11 @@
+Item Class: Body Armours
+Rarity: Rare
+Sample Item
+Sacrificial Garb
+--------
+Item Level: 86
+--------
+166% increased Physical Damage
++19% to Cold Resistance
++22 to maximum Life (implicit)
++15 to maximum Mana (fractured)

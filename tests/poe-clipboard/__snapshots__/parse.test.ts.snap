@@ -1,0 +1,459 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`parse() against clipboard fixtures > parses corrupted-item.txt into a stable structure 1`] = `
+{
+  "base": "Sacrificial Garb",
+  "corrupted": true,
+  "implicits": [],
+  "itemClass": "Body Armours",
+  "itemLevel": 86,
+  "name": "Sample Item",
+  "prefixes": [
+    {
+      "affix": "prefix",
+      "hint": {
+        "flags": [],
+        "name": "Tyrannical",
+        "tags": [
+          "Damage",
+        ],
+        "tier": 1,
+      },
+      "statLines": [
+        "166% increased Physical Damage",
+      ],
+    },
+  ],
+  "rarity": "Rare",
+  "suffixes": [],
+  "synthesised": false,
+  "unknown": [
+    {
+      "affix": "unknown",
+      "statLines": [
+        "Corrupted",
+      ],
+    },
+  ],
+}
+`;
+
+exports[`parse() against clipboard fixtures > parses magic-2-mods.txt into a stable structure 1`] = `
+{
+  "base": "Tyrannical Opal Wand of the Order",
+  "corrupted": false,
+  "implicits": [],
+  "itemClass": "Wands",
+  "itemLevel": 86,
+  "name": "Tyrannical Opal Wand of the Order",
+  "prefixes": [
+    {
+      "affix": "prefix",
+      "hint": {
+        "flags": [],
+        "name": "Tyrannical",
+        "tags": [
+          "Damage",
+        ],
+        "tier": 1,
+      },
+      "statLines": [
+        "166% increased Physical Damage",
+      ],
+    },
+  ],
+  "rarity": "Magic",
+  "suffixes": [
+    {
+      "affix": "suffix",
+      "hint": {
+        "flags": [],
+        "name": "of the Order",
+        "tags": [
+          "Caster",
+        ],
+        "tier": 1,
+      },
+      "statLines": [
+        "+10% spell damage",
+        "",
+      ],
+    },
+  ],
+  "synthesised": false,
+  "unknown": [],
+}
+`;
+
+exports[`parse() against clipboard fixtures > parses no-type-hints.txt into a stable structure 1`] = `
+{
+  "base": "Sacrificial Garb",
+  "corrupted": false,
+  "implicits": [
+    {
+      "affix": "implicit",
+      "statLines": [
+        "+22 to maximum Life (implicit)",
+      ],
+    },
+  ],
+  "itemClass": "Body Armours",
+  "itemLevel": 86,
+  "name": "Sample Item",
+  "prefixes": [],
+  "rarity": "Rare",
+  "suffixes": [],
+  "synthesised": false,
+  "unknown": [
+    {
+      "affix": "unknown",
+      "statLines": [
+        "166% increased Physical Damage",
+      ],
+    },
+    {
+      "affix": "unknown",
+      "statLines": [
+        "+19% to Cold Resistance",
+      ],
+    },
+    {
+      "affix": "unknown",
+      "statLines": [
+        "+15 to maximum Mana (fractured)",
+      ],
+    },
+  ],
+}
+`;
+
+exports[`parse() against clipboard fixtures > parses normal-no-mods.txt into a stable structure 1`] = `
+{
+  "base": "Sacrificial Garb",
+  "corrupted": false,
+  "implicits": [],
+  "itemClass": "Body Armours",
+  "itemLevel": 86,
+  "name": "Sacrificial Garb",
+  "prefixes": [],
+  "rarity": "Normal",
+  "suffixes": [],
+  "synthesised": false,
+  "unknown": [
+    {
+      "affix": "unknown",
+      "statLines": [
+        "Item Level: 86",
+      ],
+    },
+  ],
+}
+`;
+
+exports[`parse() against clipboard fixtures > parses rare-warlord-influenced.txt into a stable structure 1`] = `
+{
+  "base": "Sacrificial Garb",
+  "corrupted": false,
+  "implicits": [],
+  "influence": "warlord",
+  "itemClass": "Body Armours",
+  "itemLevel": 84,
+  "name": "Sample Item",
+  "prefixes": [
+    {
+      "affix": "prefix",
+      "hint": {
+        "flags": [],
+        "name": "Tyrannical",
+        "tags": [
+          "Damage",
+        ],
+        "tier": 1,
+      },
+      "statLines": [
+        "166% increased Physical Damage",
+      ],
+    },
+  ],
+  "rarity": "Rare",
+  "suffixes": [
+    {
+      "affix": "suffix",
+      "hint": {
+        "flags": [],
+        "name": "of Insulation",
+        "tags": [
+          "Resistance",
+        ],
+        "tier": 5,
+      },
+      "statLines": [
+        "+19% to Cold Resistance",
+        "",
+      ],
+    },
+  ],
+  "synthesised": false,
+  "unknown": [],
+}
+`;
+
+exports[`parse() against clipboard fixtures > parses rare-with-crafted.txt into a stable structure 1`] = `
+{
+  "base": "Sacrificial Garb",
+  "corrupted": false,
+  "implicits": [],
+  "itemClass": "Body Armours",
+  "itemLevel": 86,
+  "name": "Sample Item",
+  "prefixes": [
+    {
+      "affix": "prefix",
+      "hint": {
+        "flags": [],
+        "name": "Tyrannical",
+        "tags": [
+          "Damage",
+        ],
+        "tier": 1,
+      },
+      "statLines": [
+        "166% increased Physical Damage",
+      ],
+    },
+  ],
+  "rarity": "Rare",
+  "suffixes": [
+    {
+      "affix": "suffix",
+      "hint": {
+        "flags": [
+          "crafted",
+        ],
+        "name": "of Crafting",
+        "tags": [
+          "Caster",
+          "Skill",
+        ],
+        "tier": 1,
+      },
+      "statLines": [
+        "+1 to Level of Socketed Gems",
+        "",
+      ],
+    },
+  ],
+  "synthesised": false,
+  "unknown": [],
+}
+`;
+
+exports[`parse() against clipboard fixtures > parses rare-with-fractured.txt into a stable structure 1`] = `
+{
+  "base": "Sacrificial Garb",
+  "corrupted": false,
+  "implicits": [],
+  "itemClass": "Body Armours",
+  "itemLevel": 86,
+  "name": "Sample Item",
+  "prefixes": [
+    {
+      "affix": "prefix",
+      "hint": {
+        "flags": [
+          "fractured",
+        ],
+        "name": "Mage King's",
+        "tags": [
+          "Defences",
+          "Caster",
+        ],
+        "tier": 4,
+      },
+      "statLines": [
+        "+15 to maximum Mana (fractured)",
+      ],
+    },
+  ],
+  "rarity": "Rare",
+  "suffixes": [
+    {
+      "affix": "suffix",
+      "hint": {
+        "flags": [],
+        "name": "of Insulation",
+        "tags": [
+          "Resistance",
+        ],
+        "tier": 5,
+      },
+      "statLines": [
+        "+19% to Cold Resistance",
+        "",
+      ],
+    },
+  ],
+  "synthesised": false,
+  "unknown": [],
+}
+`;
+
+exports[`parse() against clipboard fixtures > parses rare-with-hints.txt into a stable structure 1`] = `
+{
+  "base": "Sacrificial Garb",
+  "corrupted": false,
+  "implicits": [],
+  "itemClass": "Body Armours",
+  "itemLevel": 86,
+  "name": "Cataclysm Veil",
+  "prefixes": [
+    {
+      "affix": "prefix",
+      "hint": {
+        "flags": [],
+        "name": "Tyrannical",
+        "tags": [
+          "Damage",
+          "Attack",
+          "Physical",
+        ],
+        "tier": 1,
+      },
+      "statLines": [
+        "166% increased Physical Damage",
+      ],
+    },
+    {
+      "affix": "prefix",
+      "hint": {
+        "flags": [],
+        "name": "Brisk's",
+        "tags": [
+          "Speed",
+        ],
+        "tier": 5,
+      },
+      "statLines": [
+        "8% increased Movement Speed",
+      ],
+    },
+  ],
+  "quality": 20,
+  "rarity": "Rare",
+  "suffixes": [
+    {
+      "affix": "suffix",
+      "hint": {
+        "flags": [],
+        "name": "of Insulation",
+        "tags": [
+          "Elemental",
+          "Resistance",
+        ],
+        "tier": 5,
+      },
+      "statLines": [
+        "+19% to Cold Resistance",
+        "",
+      ],
+    },
+  ],
+  "synthesised": false,
+  "unknown": [],
+}
+`;
+
+exports[`parse() against clipboard fixtures > parses synthesised-item.txt into a stable structure 1`] = `
+{
+  "base": "Synthesised Sorcerer Gloves",
+  "corrupted": false,
+  "implicits": [
+    {
+      "affix": "implicit",
+      "hint": {
+        "flags": [
+          "implicit",
+        ],
+        "name": "",
+        "tags": [
+          "Life",
+        ],
+        "tier": null,
+      },
+      "statLines": [
+        "+25 to maximum Life (implicit)",
+      ],
+    },
+  ],
+  "itemClass": "Gloves",
+  "itemLevel": 86,
+  "name": "Sample Item",
+  "prefixes": [
+    {
+      "affix": "prefix",
+      "hint": {
+        "flags": [],
+        "name": "Hale",
+        "tags": [
+          "Life",
+        ],
+        "tier": 1,
+      },
+      "statLines": [
+        "+100 to maximum Life",
+        "",
+      ],
+    },
+  ],
+  "rarity": "Rare",
+  "suffixes": [],
+  "synthesised": true,
+  "unknown": [],
+}
+`;
+
+exports[`parse() against clipboard fixtures > parses unique-item.txt into a stable structure 1`] = `
+{
+  "base": "Glorious Plate",
+  "corrupted": false,
+  "implicits": [
+    {
+      "affix": "implicit",
+      "hint": {
+        "flags": [
+          "implicit",
+        ],
+        "name": "",
+        "tags": [
+          "Life",
+        ],
+        "tier": null,
+      },
+      "statLines": [
+        "+500 to maximum Life (implicit)",
+      ],
+    },
+  ],
+  "itemClass": "Body Armours",
+  "itemLevel": 86,
+  "name": "Kaom's Heart",
+  "prefixes": [],
+  "rarity": "Unique",
+  "suffixes": [],
+  "synthesised": false,
+  "unknown": [
+    {
+      "affix": "unknown",
+      "statLines": [
+        "+1000 to maximum Life",
+      ],
+    },
+    {
+      "affix": "unknown",
+      "statLines": [
+        "20% reduced Mana Cost of Skills",
+      ],
+    },
+  ],
+}
+`;

@@ -1,0 +1,11 @@
+Item Class: Body Armours
+Rarity: Rare
+Sample Item
+Sacrificial Garb
+--------
+Item Level: 86
+--------
+{ Fractured Prefix Modifier "Mage King's" (Tier: 4) — Defences, Caster }
++15 to maximum Mana (fractured)
+{ Suffix Modifier "of Insulation" (Tier: 5) — Resistance }
++19% to Cold Resistance

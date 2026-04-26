@@ -1,0 +1,13 @@
+Item Class: Body Armours
+Rarity: Rare
+Sample Item
+Sacrificial Garb
+--------
+Item Level: 84
+--------
+Warlord Item
+--------
+{ Prefix Modifier "Tyrannical" (Tier: 1) — Damage }
+166% increased Physical Damage
+{ Suffix Modifier "of Insulation" (Tier: 5) — Resistance }
++19% to Cold Resistance

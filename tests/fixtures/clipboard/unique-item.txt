@@ -1,0 +1,14 @@
+Item Class: Body Armours
+Rarity: Unique
+Kaom's Heart
+Glorious Plate
+--------
+Armour: 1234
+--------
+Item Level: 86
+--------
+{ Implicit Modifier — Life }
++500 to maximum Life (implicit)
+--------
++1000 to maximum Life
+20% reduced Mana Cost of Skills

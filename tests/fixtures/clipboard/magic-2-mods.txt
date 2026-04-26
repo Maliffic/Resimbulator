@@ -1,0 +1,10 @@
+Item Class: Wands
+Rarity: Magic
+Tyrannical Opal Wand of the Order
+--------
+Item Level: 86
+--------
+{ Prefix Modifier "Tyrannical" (Tier: 1) — Damage }
+166% increased Physical Damage
+{ Suffix Modifier "of the Order" (Tier: 1) — Caster }
++10% spell damage

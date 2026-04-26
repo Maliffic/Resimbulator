@@ -1,0 +1,11 @@
+Item Class: Body Armours
+Rarity: Rare
+Sample Item
+Sacrificial Garb
+--------
+Item Level: 86
+--------
+{ Prefix Modifier "Tyrannical" (Tier: 1) — Damage }
+166% increased Physical Damage
+--------
+Corrupted
