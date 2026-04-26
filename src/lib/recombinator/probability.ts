@@ -123,11 +123,20 @@ function probConditional(
     const already = pullPrefix ? s.pickedP : s.pickedS;
     const eligible = pool.filter((m) => !already.includes(m.id) && isEligible(m, base, s.exclusiveLocked));
     if (eligible.length === 0) {
-      // Can't fulfill this slot — guide notes constraints can be violated; treat as failure
-      // since the desired-mod test will detect a missing pick.
-      const all = new Set([...s.pickedP, ...s.pickedS]);
-      for (const id of desiredSet) if (!all.has(id)) return 0;
-      return 1;
+      // Current pool exhausted — mirror the simulator's behavior: stop filling this pool,
+      // continue with the other pool if it still has remaining picks.
+      const newState: State = {
+        ...s,
+        remainingP: pullPrefix ? 0 : s.remainingP,
+        remainingS: pullPrefix ? s.remainingS : 0,
+      };
+      if (newState.remainingP === 0 && newState.remainingS === 0) {
+        // Both pools done. Check desired.
+        const all = new Set([...s.pickedP, ...s.pickedS]);
+        for (const id of desiredSet) if (!all.has(id)) return 0;
+        return 1;
+      }
+      return step(newState);
     }
 
     const w = 1 / eligible.length;
