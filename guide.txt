@@ -1,0 +1,328 @@
+TLDR: Recombinator new use cases = GOOD. Bottom of section 7 has examples of great results with new methods.
+Hello Reddit, welcome to an updated 3.25 guide to recombinators. I'm one of the original co-authors on Iron's guide back in sentinel. While some of the original recombinator rules have remained the same compared to Sentinel league, there has been an overhaul in mechanics across the board, leading to big nerfs in item outcome diversity, but a buff in some cases.
+
+For example, you can modify your input items to achieve a ~30-40% chance at getting 3 prefixes or 3 suffixes of your choosing with fewer recombine steps than before. Please read on if interested.
+
+A moderate amount of data (500-800 recombines, almost all in-league) has been collected to derive the conclusions described in this post. Despite my relative confidence in the conclusions presented here, I'm always looking for additional data to either disprove these rules or to better hammer down the probabilities.
+
+Many thanks to users on the Prohibited Library discord for their help in providing data or carrying out experiments (findar, Forgotten Arbiter, gdubrocks, n maku, Rusty, Olxinos, among others). A special thanks to my good friend Sebmik for providing a massive currency donation for testing, and to Monet for carrying out the majority of the gold farming/expensive experiments, as well as extensive discussion. Also thank you to Posuajants for a generous donation of recombinators in standard for additional testing. I wouldn't have been able to do this without them, as I did not play this league.
+
+Many imgur links in this post also have additional commentary on them. Please go to those links for additional details. For concrete image examples, go to the end of section 8 and flip through the photo album or content creator links.
+
+Without further ado, let's proceed.
+
+Table of Contents
+1. Notation
+2. A recap on recombinator mechanics from Sentinel.
+3. Introducing exclusive modifiers
+4. Non-native, natural modifiers
+5. The new recombination ruleset
+6. Single mod transfers
+7. Exclusive mod shenanigans
+8. Examples
+9. Wrapping up
+1. Notation
+To make things easier to read, all items in this post will have the format of (#n)p/(#m)s. This means that the sum of prefixes on the item equals n, and the sum of suffixes on the item equals m.
+
+For example, 1p/0s + 2p/1s means combining an item with 1 prefix, 0 suffixes and an item with 2 prefix, 1 suffix. * will be used to denote any number of affixes on that side (e.g. 1p/*s)
+
+When we consider the sum of prefixes or the sum of suffixes between both items, the following notation will be used: (#n)TP/(#m)TS. So, 5TP/4TS means that between both items, their prefixes sum to 5, and the suffixes sum to 4.
+
+2. A recap on recombinator mechanics from Sentinel.
+For a verbose description of these mechanics, please check out Iron's guide. A brief description will be provided to those unfamiliar with the mechanic.
+
+When recombining an item back in Sentinel, there were two overarching steps in the process:
+
+The final item is chosen from one of the two initial items you input. The final item inherits all properties, except item level which is calculated based on the two input items.
+
+Inherited: Item influence, enchants, tags, anoints, quality, etc.
+
+Item level: (item1 + item2) / 2 + 2, capped the max(item1,item2). This means you cant' exceed the max of both item levels if they're the same for example.
+
+The modifiers are now selected. All the prefixes and suffixes are put in separate pools, and for all intents and purposes, are considered independent from one another. This rule has one specific exception (the 1 prefix, 1 suffix case which we'll discuss later).
+
+Based on the total number of affixes in a pool (calculated for both prefix and suffix independently), the final number of modifiers selected is drawn from a simple discrete distribution (see here). The distributions are the same for prefix and suffix if the total number of affixes are identical.
+
+Regardless of mod type (with the exception of specific overlapping mod groups), the final item would abide by these distributions. For example, If you had an item with 5TP (total prefixes), under the old rules, you would see 3P 50% of the time, and 2p 50% of the time. Under this rule, you could combine multiple essences, temple mods, among other "special" modifiers, and move mods freely between items.
+
+Mod weights were not a factor here. If a final wand chose 1TP, you would be equally likely to see the "Merciless" mod (25 weight) versus Mana (1000 weight) if they were both in the initial prefix pool.
+
+Duplicate mods were both added to the pool. This means "doubling" mods increased your odds at picking said mod.
+
+Now with the basics covered, let's start going over the new rules.
+
+3. Introducing exclusive modifiers
+When 3.25 first dropped, players excited at the thought of making OP triple essenced weapons were quickly dissapointed when they found that they were either very unlucky or that essences couldn't be combined.
+
+Well it turns out that essences, among other classes of modifiers, fall under the category of what we call "exclusive" modifiers. This is a new concept introduced in this generation of recombinators. Here, we define "exclusive":
+
+Exclusive modifier: A modifier that cannot appear with another exclusive modifier on a recombined item.
+
+Here is a non-exhaustive list of league-accessible exclusive modifiers we have identified. If you have any counter-examples, please reply in post or DM me.
+
+Breach (i.e. grasping mail)
+
+Incursion
+
+Essence
+
+This means special essence modifiers with no "tiers". This can be easily checked by holding alt over the item. If it has a tier number, it is technically not an "essence" modifier despite originating from an essence. For all intents and purposes, a modifier created with an essence that has a tier number on it is treated identically to an equivalent mod that appeared naturally (e.g. T1 chaos res versus Deafening essence of envy)
+
+Beast aspects
+
+Elevated influenced modifiers (non-elevated are ok)
+
+Delve modifiers (e.g. of the underground)
+
+Veiled modifiers
+
+Crafted modifiers (mod names can be identified by holding alt, or by looking on poedb)
+
+Metacrafted modifiers
+
+Crafted NAMED suffixes (e.g. "of the order")
+
+Crafted NAMED prefixes (e.g. "Chosen", "Tora's", "It's")
+
+Crafted mods named "UPGRADED" or "OF THE CRAFT" may not be exclusive. If trying to craft exclusive mods, AVOID THEM and craft NAMED MODIFIERS (see right above)
+
+Not exclusive:
+
+Fractured
+
+Influence (of course, influence and fractured cannot co-exist, but they are not exclusive with the other mods on the above list)
+
+Any of these modifiers cannot show up with other mods on this list on a final recombinated item. Understanding this rule has long-reaching implications that allows for some item engineering to tilt the odds in your favor, or can completely sabotage your chances.
+
+For example, trying to transfer a breach mod by crafting a prefix on both items (e.g. 1p/1s + 2p/1s), known as the "mod doubling" strategy, is no longer viable because picking the crafted mod means your breach mod has 0% chance to appear!
+
+"Regular" crafted mods may or may not be exclusive. The exact list of exclusive/non-exclusive crafted prefixes and suffixes is currently not fleshed out. Check the sheet, tab "List of non-exclusive crafted affix mods" for details as we update it.
+
+EDIT: Non-exclusive crafted modifiers are safe to use for mod doubling. For example, combining 1p/*s + 1p/*s can be aided by crafting non-exclusive crafted modifiers. For example, on body-armors, crafting life on both bases may be useful.
+
+For the remainder of this document, an additional "e" notation denotes exclusive affixes. E.g. 1p1e/1s1e means 1 prefix, 1 exclusive prefix and 1 suffix, 1 exclusive suffix.
+
+4. Non-native, natural modifiers (NNN)
+Alongside this list of exclusive modifiers is a list of modifiers we will call "non-native , natural" (NNN). These are modifiers that may not be drop-exclusive, but only appear on certain base types due to item restrictions. They're called non-native because they cannot appear on the final item if it violates their "native" condition.
+
+Here is another non-exhaustive list of NNN modifiers:
+
+Influenced modifiers (e.g. Warlord modifier cannot appear on a non-influenced item)
+
+Defence modifiers (e.g. Armour cannot show up on a pure ES base)
+
+Attribute-specific affixes (e.g. Life regeneration% on strength bases cannot appear on an intelligence base). These include, but are not limited to:
+
+Life regen%/Energy recharge rate
+
+Suppress
+
+Fractured modifiers (e.g. fractured cannot transfer to another base if their originating base is not picked)
+
+5. The new recombination ruleset
+Here are the new rules we have determined from the our collected data. Note that the conditional affix distributions are not set in stone since our sample sizes are still relatively small compared to the dataset collected in Sentinel league. Here is the new recombination process.
+
+The final item is selected based on the initial two items with a 50/50 chance. The item level is calculated using the same formula (see above). All attributes are inherited except defence percentile, which seems to be rerolled (credit: ih8ih8sn0w). The rerolled defence percentile also seems to have no correlation with the input defence percentiles (credit: Forgotten Arbiter, more data being collected)
+
+The prefixes and suffixes are put into different affix pools. The final number of prefix/suffix mods is dependent only on the initial number of total prefix/suffix modifiers respectively, and are described in Table 1 below. For example, if the sum of prefixes in both input items is 2, then there is a 66% chance of keeping only one of those 1 prefixes, and a 33% chance of having both prefixes on the final item. There is also a 0% chance of going from 2 input prefixes to zero.
+
+The number of prefixes do not affect the number of suffixes except in one specific scenario (listed below). All of the percentages in Table 1 have not been rounded to "nice" numbers. Note that NNN (except fracture) and "exclusive" modifiers also "add" to the total affix pool. This has important consequences.
+
+Fracture modifiers only add to the pool if their own base is chosen! Avoid them if possible. (Credit: NcuriousmediatoR)
+
+Prefixes or suffixes are filled first, with 50/50 odds. This seems inconsequential, but is actually important with exclusive mods.
+
+The final mods are now selected from all eligible modifiers, with the number decided from step 2 enforced as much as possible. There are several interactions with "exclusive" and NNN mods.
+
+Exclusive: If one exclusive mod is picked, all other exclusive mods in both prefix and suffix pools are no longer eligible. Mods from both prefix and suffix are picked from remaining mods to best satisfy the final distribution constraints calculated in Step 2
+
+NNN: If the wrong basetype is picked, NNN mods cannot transfer over and hence cannot be selected. Similar to above, the remaining mods are picked to satisfy Step 2 constraints. For example, if you pick a strength glove base and have mana in your prefix pool, it cannot be picked.
+
+NOTE: In some extreme cases, you will violate the mod distributions determined from Step 2 if you have no eligible modifiers. More in detail below.
+
+In the case where there are more eligible mods than the number of available mod "slots", only some of these mods make it to the final item. In Sentinel, your odds could be easily calculated by counting the combinations of outcomes with your mods of interest versus all possible combinations. In current league, the weights of these modifiers is also a factor, where modifiers with higher weights are more likely. This is probably to prevent players from making extremely overpowered items too easily. However, the specifics of this formula are not currently not fully fleshed out. Mod tiers at least do not seem to be a factor if the weights are the same (this needs more testing, results from Forgotten Arbiter and Order indicate the effect is weak, if any).
+
+Mod doubling still works and is strongly recommended. For example, going from 3 -> 4 mods raises your odds of 3 final affixes from <10% to ~30%. See Iron's guide for more details on doubling
+
+Item mods can move onto items with lower item level than they exist on. For example, t1 chaos res (minimum ilvl 82) can recombined onto an item with a final ilvl lower than 82.
+
+Note: The weighting step is actually not too consequential. Exploiting Step 4 is often more than enough to force extremely unlikely outcomes, completely ignoring mod weighting in the process.
+
+
+
+Final (below), Initial (right)	1	2	3	4	5	6
+0 mod	41%	0%	0%	0%	0%	0%
+1 mod	59%	67%	39%	11%	0%	0%
+2 mod	0%	33%	52%	59%	43%	28%
+3 mod	0%	0%	10%	31%	57%	72%
+Table 1: Conditional final affix number distributions. Thank you to Rusty for providing a lot more additional data to give more accurate percentages.
+
+
+
+The only exception to this distribution rule is the case with 1p/0s + 0p/1s. In this case, there are no reports of a white item coming out of this recombination. This means that there are only 3 outcomes: 1p/0s, 0p/1s and 1p1s. Each of these outcomes were measured at a 33% chance. This is a specific case where prefix/suffix are not independent, since 0p implies 1s and vice versa.
+
+6. Single mod transfers
+Step 3 from Section 5, specifically with NNN mods have crafting consequences for transferring mods.
+
+For example, take a grasping mail body armour with a single breach prefix (e.g. armour overcapped fire). We use an influenced exalted orb to add an influenced prefix on the breach item. The reason we do this, is that with a combined pool of at least 2 prefixes, the final item must have at least one prefix. We combine this with a 0p/*s uninfluenced item. Remember, the final item must have one prefix. However, the NNN influenced mod cannot transfer, which means if you pick the white item, you have a 100% chance of success, since there must be a prefix and there is only one choice left, which is the breach mod. Because the chance of picking the white item is 50%, the overall transfer success rate is also 50%. Here is one of many successful attempts. Note that the fire res here is actually harmful to your chances (it's exclusive on body armour), and this experiment was done before fully understanding exclusion
+
+Note: You must also respect "exclusive" rules. If the breach item you're using has other breach mods, those may get picked, resulting in an "impossible" result of 0p/*s despite having 2TP/*TS.
+
+Other examples: You can also abuse this rule for non-native defence/attributes modifiers with incursion mods. Inclusion of mods such as "energy shield recharge rate" when transferring to a str or str/dex base effectively increases your final odds of getting your desired affixes with the incursion mod assuming the correct base is picked in the end.
+
+In summary (grasping mail example):
+
+Block all suffixes, have breach mod be the only prefix
+
+Use influenced exalted orb
+
+Do not craft any suffixes. Crafted mods don't help you here, and may hurt your odds if you accidentally put an exclusive mod we have not confirmed.
+
+Combine with desired base.
+
+Extra note added thanks to findar. This is skippable:
+
+For prefix transfers (e.g. breach mods), one alternative strategy is to do 1p/0s (grasping mail) + 0p/1s (transfer base). The probability of directly transferring the mod, following the special rules of 1p/0s + 0p/1s is 0.5 * 0.66 (probability of picking the transfer base * probability of keeping the prefix). The probability of retaining the prefix for recycling is 0.5 * 0.66 as well. Therefore, the probability of successful transfer x is x = 0.5*2/3+ 0.5*2/3*x. Solving, we get x = 0.5, which is identical to the previous strategy. The caveat is if your transfer base is expensive (e.g. high quality > 20), in which case the influence method is better since it requires fewer tries (~2 on average versus 4 on average for this alternative strategy. The number 4 was calculated by constructing a simple absorbing Markov chain and calculating the expected number of visits to the starting item state, given that you start there.)
+
+7. Exclusive mod shenanigans
+Congrats if you've made it this far. This section details some of the more abusive strategies using clever interactions between steps 2, 4 (Section 5) and exclusive mods.
+
+Remember how only one exclusive mod can show up on an item?
+
+We can use this fact to "force" high likelihood of 3 final prefixes or suffixes in very few attempts using a combination of multimod, named crafting affixes and beast aspects.
+
+Here's an example. Let's say we want to combine runic (t1 spell damage, weight 40), zaffre (t1 mana, weight 400) and archmage (t2 hybrid spell/mana, weight 200) together on a wand. The "old" best strategy would be to double up mods (probably zaffre due to high weighting), which would involve two 33% chance steps for two items with 2p/*s each, followed by a 30% chance step to recombine those two input items into 3p/*s. This will be around 15+ combines (ballpark) on average (exact number is hard, but not impossible to calculate due to recursion if your item is saved).
+
+Instead, what if I told you the likelihood was just as high with just a 2p/*s and 1p/*s, with no overlap? This would only require creating the 2p/*s item, which should be 3 combines on average (just doing a 1p/*s + 1p/*s), followed by the final combine. Here's how this looks like. In our notation, this is 2p1e/1s2e + 1p2e/1s2e.
+
+Disgusting, right? Even with increased likelihood of rare modifiers, the outcome we see seems incredibly unlikely. None of the crafted prefixes showed up! Let's break it down:
+
+We have a total of 7 exclusive mods: 3 prefixes, 2 multimods, 1 aspect and 1 named crafted suffix.
+
+From our testing, the item starts filling in prefixes/suffixes first with 50/50 odds. This means that the aspect and crafted suffix in the above image example do not change the exclusive mod odds (**e.g. If 6/7 exclusive mods are suffixes, this does not mean your chance at getting an exclusive suffix is 6/7. It is always 50% ** given that you see an exclusive affix). This image was taken from one of our earlier experiments before the 50/50 confirmation.
+
+Because there are 6TP (zaffre, archmage, runic, phys as chaos, ele pen, minion) we have an ~72% chance at 3 mods.
+
+The suffix exclusive mod is picked, removing all other exclusive prefixes and suffixes from the pool. We hit the 72% chance at 3 prefixes, therefore the only 3 mods we can get are the 3 non-crafted prefixes remaining in the pool (zaffre + archmage + runic). The approximate odds are = 1/2 * 0.72 ~= 35%. This is because there is a 50% chance we start with the suffixes, almost guaranteeing an exclusive suffix is picked, followed by a 72% chance we then pick 3 prefixes. These are much better odds considering many fewer steps (at the cost of some divines) and the possibility to also save desired suffixes simultaneously.
+
+This strategy can be summarized as follows:
+
+Maximize the number of total affixes in the desired pool (TP or TS) by putting in exclusive modifiers (ideally NAMED crafted modifiers). This is because the likelihood of 2/3 final modifiers is greatly increased the larger your total affix pool is. Avoid any essence modifiers since they are exclusive and will likely vanish.
+
+"Counterweight" the exclusive affixes by putting at least 1 exclusive affix on the other side (e.g. put exclusive suffixes if you're looking to get recombine into 3 desired prefixes).
+
+Exclusive modifiers are not guaranteed to show up on the final item. The number of exclusive counterweight affixes technically only needs to be 1, but if you craft multi-mod make sure to fill out additional crafted, counterweight affixes to reduce your chance at not picking any exclusive affixes. Even in some cases, you may not get any exclusive affixes at all even with multimod.
+
+IMPORTANT: Your odds at getting an exclusive prefix or suffix is always 50/50 if you force one to appear (exclusive affixes are not guaranteed to show up on the final item). Crafting more exclusive prefixes than suffixes does not weight your odds at all. Calculate accordingly.
+
+8. Examples
+3 Prefixes (none are exclusive)
+Assume we're combining 2p/*s (call this A) and 1p/*s (call this B), and we don't care about saving specific suffixes. We can obtain 2p/*s through combining 1p/*s + 1p/*s (ideally 0s), and 1p/*s through splitting, alting, and converting it to rare using regal/annul). We want to save costs, and also don't want to fill up the suffixes with 3 non-crafted mods. All crafted affixes are presumed to be exclusive. Note that there are several permutations that work, but my example simply gives one example:
+
+If 2p/2s (A) + 1p/2s (B):
+
+A: add an aspect and add a crafted prefix.
+
+B: multimod and craft 2 prefixes. If you want to save costs/gamble, just add an aspect + crafted named prefix on both items.
+
+If 2p/2s (A) + 1p/1s (B):
+
+A: add an aspect suffix and craft a prefix.
+
+B: multimod and craft 2 prefixes.
+
+If 2p/1s (A) + 1p/2s(B):
+
+A: add an aspect suffix and craft a named prefix
+
+B: multimod and craft 2 named prefixes
+
+If 2p/1s (A) + 1p/1s (B):
+
+A: add an aspect suffix and craft a named prefix
+
+B: multimod and craft 2 named prefix
+
+In the 3 last bullet points, the aspect suffix can be substituted with a multimod if the input items are difficult to obtain/very expensive (to reduce risk of getting 3 non-crafted suffixes).
+
+Outcomes:
+
+1p1e/*s. The worst outcome. You must make a 2p/*s item again. The 1e will be crafted so it is removable
+
+2p/*s. Acquire a 1p/*s item again and try once more.
+
+3p/3s (no crafted mods). 50/50 annul unfortunately, or you can split beast and try again. Unfortunately, one of these items will likely be 1p/2s, which is not ideal and should be converted to 1p/1s.
+
+3p/2s1e (1 crafted mod). This is the outcome we are looking for.
+
+3 suffixes (none are exclusive)
+This is similar to 3 prefixes, but because multimod is a suffix we'll do things a bit differently. Same notation as above. We do not care about prefixes here.
+
+If 2p/2s (A) + 2p/1s (B):
+
+A: add an aspect and craft prefix
+
+B: craft multimod, craft suffix, craft prefix
+
+If 2p/2s (A) + 1p/1s (B):
+
+A: add an aspect, craft prefix
+
+B: craft multimod, craft prefix
+
+If 1p/2s (A) and 2p/1s (B):
+
+A: add an aspect, craft prefix
+
+B: craft multimod, craft suffix
+
+If 1s/2p (A) and 1p/1s (B):
+
+A: add an aspect, craft prefix
+
+B: craft multimod, craft suffix
+
+Outcomes:
+
+Similar to above, but mirrored. Replace prefixes with suffixes and the next steps are the same.
+
+Other examples of exclusive affix crafting here.
+These contain profit crafts to demonstrate the efficacy of the methods in this section.
+
+Examples of others having success with 3p/2s or 2s/3p using affix crafting:
+Diregray hitting 2p/3s minion ring
+
+Redviles hitting 3p/2s mirror chest
+
+Sebk hitting 3p/2s helmet
+
+Lance hits 2p/3s mirror tier wand
+
+Rusty mirror 3p/3s dagger
+
+Manni 3p/1s shield with veiled mod on combine
+
+Spicysushi 2p/3s "mirror" shaper/elder daggers/claws
+
+Example of "old" style crafting using temple mods for 3 suffixes (from Patonis)
+
+For more detail on older recombinating methods using drop-only exclusive affixes (e.g. temple, delve, etc.) and just doubled mods, check Iron's original guide.
+
+9. Wrapping up
+There are many additional applications of recombinators that can be performed using the rules stated. For example, exclusive affix crafting can extend to more than just 3p or 3s: you can make 3p/1s, 3p/2s, 1p/3s, 2p/3s and 3p/3s items with pretty high odds in a single recombination step! (See video examples right above)
+
+Not stated in this guide are rules regarding selective "annulling". Due to the unknown factor of mod weighting, I'm not currently confident enough to advise regarding annulling strategies. What I can say mirrors what has already been found: You can "annul" low weighted mods by hoping they do not get selected through a recombination.
+
+Things that are still unknown and will be updated in the following days:
+
+Weighting formulas
+
+Dust/gold cost (don't count on it, this is really hard)
+
+Thank you for reading and happy crafting!
+
+  AV
+
+Here is a raw data dump of most of our experiments run so far. If you have more detailed data to contribute, please DM me.
+
+Note: 08/21/2024 3:50 p.m. Central. Edited Table 1 (mod distributions) thanks to more data from Rusty and Order Note: 08/23/2024 11:53 a.m. Central. Added step about 50/50 prefix/suffix selection odds
