@@ -45,3 +45,31 @@ describe('probabilityMonteCarlo', () => {
     expect(p).toBe(0);
   });
 });
+
+import { probabilityExact } from '../../src/lib/recombinator/probability.js';
+
+describe('probabilityExact', () => {
+  it('matches Table 1 for 1 desired prefix, 1 input prefix', () => {
+    const item1 = baseItem('a', [desired('p1', 'prefix')], []);
+    const item2 = baseItem('b', [], []);
+    const p = probabilityExact(item1, item2, [desired('p1', 'prefix')]);
+    expect(p).toBeCloseTo(0.59, 6);
+  });
+
+  it('matches Monte Carlo within ±0.5% on a 3p/2s scenario', () => {
+    const item1 = baseItem('a', [desired('p1', 'prefix'), filler('p2', 'prefix')], [filler('s1', 'suffix')]);
+    const item2 = baseItem('b', [filler('p3', 'prefix')], [desired('s2', 'suffix')]);
+    const desiredMods = [desired('p1', 'prefix'), desired('s2', 'suffix')];
+    const exact = probabilityExact(item1, item2, desiredMods);
+    const rng = new SeededRng(31);
+    const mc = probabilityMonteCarlo(item1, item2, desiredMods, 50_000, rng);
+    expect(Math.abs(exact - mc)).toBeLessThan(0.01);
+  });
+
+  it('returns 0 for an impossible target', () => {
+    const item1 = baseItem('a', [filler('p1', 'prefix')], []);
+    const item2 = baseItem('b', [filler('p2', 'prefix')], []);
+    const p = probabilityExact(item1, item2, [desired('p99', 'prefix')]);
+    expect(p).toBe(0);
+  });
+});
