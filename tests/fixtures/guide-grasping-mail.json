@@ -1,0 +1,39 @@
+{
+  "_comment": "Guide §6 grasping mail breach transfer scenario. Note: the guide's stated 50% is a BASE-CONDITIONAL probability (P(result on new base AND breach lands)). probabilityExact computes the UNCONDITIONAL probability (P(breach on result, any base)) which is 0.8325 for this setup. Both are mathematically valid; the engine answers the unconditional version. This test validates NNN_Influenced eligibility filtering and pool combination math.",
+  "item1": {
+    "id": "grasping",
+    "base": "Sacrificial Garb",
+    "itemClass": "Body Armours",
+    "itemLevel": 84,
+    "attributeBase": "str_int",
+    "defenceTags": ["armour", "energy_shield"],
+    "influence": "warlord",
+    "corrupted": false,
+    "synthesised": false,
+    "implicits": [],
+    "prefixes": [
+      { "id": "breach_armour_overcap_fire", "affix": "prefix", "category": "ExclusiveBreach", "name": "Breach", "tier": 1, "statText": "+# armour overcapped fire" },
+      { "id": "warlord_influence_pref", "affix": "prefix", "category": "NNN_Influenced", "name": "Warlord Pref", "tier": 1, "statText": "warlord mod", "requiresInfluence": "warlord" }
+    ],
+    "suffixes": []
+  },
+  "item2": {
+    "id": "transfer_base",
+    "base": "Sacrificial Garb",
+    "itemClass": "Body Armours",
+    "itemLevel": 86,
+    "attributeBase": "str_int",
+    "defenceTags": ["armour", "energy_shield"],
+    "influence": null,
+    "corrupted": false,
+    "synthesised": false,
+    "implicits": [],
+    "prefixes": [],
+    "suffixes": [
+      { "id": "filler_suff", "affix": "suffix", "category": "RegularExplicit", "name": "Filler", "tier": 1, "statText": "filler" }
+    ]
+  },
+  "desired": ["breach_armour_overcap_fire"],
+  "expectedProbability": 0.8325,
+  "tolerance": 0.02
+}
