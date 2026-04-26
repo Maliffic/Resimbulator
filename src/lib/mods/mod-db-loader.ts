@@ -37,6 +37,6 @@ export function lookupByNameTierAffix(
 }
 
 export function lookupByStatLine(db: ModDb, statLine: string): ModDef[] {
-  const template = normalizeTemplate(statLine.replace(/[+\-]?\d+(?:\.\d+)?/g, '#'));
+  const template = normalizeTemplate(statLine.replace(/[+-]?\d+(?:\.\d+)?/g, '#'));
   return db.byStatTemplate.get(template) ?? [];
 }
