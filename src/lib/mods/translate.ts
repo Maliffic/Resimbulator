@@ -1,5 +1,4 @@
 // src/lib/mods/translate.ts
-import { randomUUID } from 'node:crypto';
 import type { ParsedItem, ParsedMod } from '../poe-clipboard/index.js';
 import type { Item, Mod, AttributeBase, DefenceTag } from '../recombinator/index.js';
 import type { ModDb } from './types.js';
@@ -7,7 +6,7 @@ import { lookupBase } from './base-db.js';
 import { categorize } from './categorize.js';
 
 export function translate(parsed: ParsedItem, db: ModDb): Item {
-  const id = randomUUID();
+  const id = globalThis.crypto.randomUUID();
   const baseDef = lookupBase(parsed.base);
   const attributeBase: AttributeBase = baseDef?.attributeBase ?? 'pure';
   const defenceTags: DefenceTag[] = baseDef?.defenceTags ?? [];
@@ -34,7 +33,7 @@ function translateMod(parsed: ParsedMod, db: ModDb, hostItemId: string): Mod {
   const affix = parsed.affix === 'unknown' ? 'prefix' : parsed.affix;
   const id = parsed.hint?.name
     ? `${parsed.hint.name}_${parsed.hint.tier ?? 'untiered'}_${affix}`
-    : randomUUID();
+    : globalThis.crypto.randomUUID();
 
   const mod: Mod = {
     id,
