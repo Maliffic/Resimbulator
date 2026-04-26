@@ -76,7 +76,6 @@ exports[`parse() against clipboard fixtures > parses magic-2-mods.txt into a sta
       },
       "statLines": [
         "+10% spell damage",
-        "",
       ],
     },
   ],
@@ -189,7 +188,6 @@ exports[`parse() against clipboard fixtures > parses rare-warlord-influenced.txt
       },
       "statLines": [
         "+19% to Cold Resistance",
-        "",
       ],
     },
   ],
@@ -239,7 +237,6 @@ exports[`parse() against clipboard fixtures > parses rare-with-crafted.txt into 
       },
       "statLines": [
         "+1 to Level of Socketed Gems",
-        "",
       ],
     },
   ],
@@ -289,7 +286,6 @@ exports[`parse() against clipboard fixtures > parses rare-with-fractured.txt int
       },
       "statLines": [
         "+19% to Cold Resistance",
-        "",
       ],
     },
   ],
@@ -354,7 +350,6 @@ exports[`parse() against clipboard fixtures > parses rare-with-hints.txt into a 
       },
       "statLines": [
         "+19% to Cold Resistance",
-        "",
       ],
     },
   ],
@@ -401,7 +396,6 @@ exports[`parse() against clipboard fixtures > parses synthesised-item.txt into a
       },
       "statLines": [
         "+100 to maximum Life",
-        "",
       ],
     },
   ],

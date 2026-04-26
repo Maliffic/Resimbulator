@@ -64,7 +64,8 @@ export function parseModSection(section: string[]): ParsedMod[] {
       i++;
       const statLines: string[] = [];
       while (i < section.length && !HINT_LINE.test(section[i]!)) {
-        statLines.push(section[i]!);
+        const next = section[i]!;
+        if (next.trim() !== '') statLines.push(next);
         i++;
       }
       const { affix, name, tier, tags, flags } = hint;
