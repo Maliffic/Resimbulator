@@ -1,6 +1,6 @@
 // tests/recombinator/types.test.ts
 import { describe, it, expect, expectTypeOf } from 'vitest';
-import type { Item, Mod, ModCategory, BaseContext, RecombineInput } from '../../src/lib/recombinator/types.js';
+import type { Item, Mod, ModCategory } from '../../src/lib/recombinator/types.js';
 
 describe('types: Mod', () => {
   it('accepts a regular explicit mod', () => {
