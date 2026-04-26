@@ -59,3 +59,19 @@ describe('CLI parse command', () => {
     expect(out.parsed.prefixes).toHaveLength(2);
   });
 });
+
+describe('CLI translate command', () => {
+  it('translates clipboard text into an engine Item', async () => {
+    const clipboard = readFileSync(resolve(FIXTURES_DIR, 'rare-with-hints.txt'), 'utf8');
+    const fixtureDb = readFileSync(
+      resolve(dirname(fileURLToPath(import.meta.url)), '../fixtures/mods/fixture-mod-db.json'),
+      'utf8',
+    );
+    const input = JSON.stringify({ command: 'translate', clipboard, modDb: JSON.parse(fixtureDb) });
+    const out = await runCli(input);
+    expect(out.command).toBe('translate');
+    if (out.command !== 'translate') throw new Error('typeguard');
+    expect(out.item.attributeBase).toBe('str_int');
+    expect(out.item.prefixes).toHaveLength(2);
+  });
+});

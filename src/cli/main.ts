@@ -5,21 +5,31 @@ import {
 import type { Item, Mod } from '../lib/recombinator/index.js';
 import { parse as parseClipboard } from '../lib/poe-clipboard/index.js';
 import type { ParsedItem } from '../lib/poe-clipboard/index.js';
+import { loadModDb, translate } from '../lib/mods/index.js';
+import type { ModDef } from '../lib/mods/index.js';
 
 export type CliInput =
   | { command: 'probability' | 'simulate'; seed?: number; trials?: number; item1: Item; item2: Item }
-  | { command: 'parse'; clipboard: string };
+  | { command: 'parse'; clipboard: string }
+  | { command: 'translate'; clipboard: string; modDb: ModDef[] };
 
 export type CliOutput =
   | { command: 'probability'; exact: number; monteCarlo: number }
   | { command: 'simulate'; results: Array<{ baseFromItem: 1 | 2; prefixes: string[]; suffixes: string[] }> }
-  | { command: 'parse'; parsed: ParsedItem };
+  | { command: 'parse'; parsed: ParsedItem }
+  | { command: 'translate'; item: Item };
 
 export async function runCli(jsonInput: string): Promise<CliOutput> {
   const input = JSON.parse(jsonInput) as CliInput;
 
   if (input.command === 'parse') {
     return { command: 'parse', parsed: parseClipboard(input.clipboard) };
+  }
+
+  if (input.command === 'translate') {
+    const parsed = parseClipboard(input.clipboard);
+    const db = loadModDb(input.modDb);
+    return { command: 'translate', item: translate(parsed, db) };
   }
 
   const seed = input.seed ?? Date.now();
