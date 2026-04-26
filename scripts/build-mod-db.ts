@@ -11,7 +11,9 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import type { ModDef } from '../src/lib/mods/types.js';
 
-const REPOE_BASE = 'https://raw.githubusercontent.com/lvlvllvlvllvlvl/RePoE/master/RePoE/data';
+// Active maintained fork. The lvlvllvlvllvlvl/RePoE repo is archived; brather1ng/RePoE
+// is stale. repoe-fork is the community-maintained continuation.
+const REPOE_BASE = 'https://raw.githubusercontent.com/repoe-fork/repoe-fork.github.io/master/data';
 const OUTPUT_PATH = resolve('static', 'mod-db.json');
 
 type RePoEMod = {
@@ -64,7 +66,7 @@ function transformMods(repoeData: Record<string, RePoEMod>): ModDef[] {
 
 async function main() {
   console.log(`Fetching RePoE data from ${REPOE_BASE}...`);
-  const repoeData = await fetchJson<Record<string, RePoEMod>>('mods.min.json');
+  const repoeData = await fetchJson<Record<string, RePoEMod>>('mods.json');
   console.log(`Fetched ${Object.keys(repoeData).length} raw RePoE mod entries`);
 
   const transformed = transformMods(repoeData);
