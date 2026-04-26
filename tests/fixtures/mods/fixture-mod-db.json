@@ -1,0 +1,95 @@
+[
+  {
+    "id": "TyrannicalDamage1",
+    "name": "Tyrannical",
+    "affix": "prefix",
+    "tier": 1,
+    "tags": ["damage", "attack", "physical"],
+    "generationType": "prefix",
+    "domain": "item",
+    "statTemplates": ["#% increased Physical Damage"]
+  },
+  {
+    "id": "BrisksMovementSpeed5",
+    "name": "Brisk's",
+    "affix": "prefix",
+    "tier": 5,
+    "tags": ["speed"],
+    "generationType": "prefix",
+    "domain": "item",
+    "statTemplates": ["#% increased Movement Speed"]
+  },
+  {
+    "id": "InsulationCold5",
+    "name": "of Insulation",
+    "affix": "suffix",
+    "tier": 5,
+    "tags": ["elemental", "resistance"],
+    "generationType": "suffix",
+    "domain": "item",
+    "statTemplates": ["+#% to Cold Resistance"]
+  },
+  {
+    "id": "WarlordCritMulti1",
+    "name": "Empowering",
+    "affix": "prefix",
+    "tier": 1,
+    "tags": ["influence"],
+    "generationType": "warlord",
+    "domain": "item",
+    "statTemplates": ["+#% to Critical Strike Multiplier"],
+    "influenceRestriction": "warlord"
+  },
+  {
+    "id": "BreachArmourFire1",
+    "name": "Breach",
+    "affix": "prefix",
+    "tier": 1,
+    "tags": ["breach"],
+    "generationType": "prefix",
+    "domain": "breach",
+    "statTemplates": ["+# armour overcapped fire"]
+  },
+  {
+    "id": "ArmourLocal1",
+    "name": "Plated",
+    "affix": "prefix",
+    "tier": 1,
+    "tags": ["defences"],
+    "generationType": "prefix",
+    "domain": "item",
+    "statTemplates": ["#% increased Armour"],
+    "defenceRestriction": ["armour"]
+  },
+  {
+    "id": "StrLifeRegen1",
+    "name": "Hale",
+    "affix": "prefix",
+    "tier": 1,
+    "tags": ["life"],
+    "generationType": "prefix",
+    "domain": "item",
+    "statTemplates": ["#% of Life Regenerated per second"],
+    "attributeRestriction": ["str", "str_int", "str_dex"]
+  },
+  {
+    "id": "EssencePlatingArmour",
+    "name": "Essence Plating",
+    "affix": "prefix",
+    "tier": null,
+    "tags": ["defences"],
+    "generationType": "prefix",
+    "domain": "item",
+    "statTemplates": ["Adds # to # Armour"]
+  },
+  {
+    "id": "AspectOfSpider1",
+    "name": "Aspect of the Spider",
+    "affix": "suffix",
+    "tier": 1,
+    "tags": ["aspect"],
+    "generationType": "suffix",
+    "domain": "item",
+    "statTemplates": ["Grants Level # Aspect of the Spider Skill"]
+  }
+]
