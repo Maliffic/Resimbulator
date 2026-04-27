@@ -11,3 +11,5 @@ export { isEligible, isExclusive } from './eligibility.js';
 export { simulateOnce, simulateBatch } from './simulate.js';
 export { probabilityExact, probabilityExactByBase, probabilityMonteCarlo, allDesiredHit } from './probability.js';
 export { isOneOneSpecialCase, sampleOneOneOutcome } from './special-cases.js';
+export { explainScenario } from './explain.js';
+export type { Explanation, PoolMod } from './explain.js';

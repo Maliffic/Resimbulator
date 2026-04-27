@@ -5,6 +5,7 @@
   } from '$lib/recombinator/index.js';
   import RecombineResultDialog from './RecombineResultDialog.svelte';
   import BatchSimDialog from './BatchSimDialog.svelte';
+  import ExplainDialog from './ExplainDialog.svelte';
 
   type Props = {
     item1: Item | null;
@@ -29,6 +30,7 @@
     total: number;
     expectedTries: number;
   } | null>(null);
+  let explainOpen = $state(false);
 
   function recombineOnce() {
     if (!item1 || !item2) return;
@@ -93,8 +95,16 @@
     <div class="text-5xl font-bold text-poe-rare drop-shadow-[0_0_4px_rgba(255,255,119,0.25)]">
       {(chance * 100).toFixed(1)}%
     </div>
-    <div class="text-xs text-poe-dim mt-2">
-      {desiredCount === 0 ? 'no desired mods marked' : `${desiredCount} desired mod${desiredCount === 1 ? '' : 's'}`}
+    <div class="text-xs text-poe-dim mt-2 flex items-center gap-2">
+      <span>{desiredCount === 0 ? 'no desired mods marked' : `${desiredCount} desired mod${desiredCount === 1 ? '' : 's'}`}</span>
+      {#if canRecombine}
+        <button
+          class="text-poe-rare hover:text-poe-text underline decoration-dotted text-[11px]"
+          onclick={() => (explainOpen = true)}
+        >
+          show breakdown
+        </button>
+      {/if}
     </div>
 
     {#if desiredCount > 0}
@@ -219,5 +229,14 @@
     total={batchData.total}
     expectedTries={batchData.expectedTries}
     onClose={() => (batchData = null)}
+  />
+{/if}
+
+{#if explainOpen && item1 && item2}
+  <ExplainDialog
+    {item1}
+    {item2}
+    desired={[...item1.prefixes, ...item1.suffixes, ...item2.prefixes, ...item2.suffixes].filter((m) => m.desired === true)}
+    onClose={() => (explainOpen = false)}
   />
 {/if}
