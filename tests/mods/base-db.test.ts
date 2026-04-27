@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { BASE_DB, lookupBase } from '../../src/lib/mods/base-db.js';
 
 describe('BASE_DB curation', () => {
-  it('contains entries for common Settlers crafting bases', () => {
+  it('contains entries for common crafting bases', () => {
     expect(lookupBase('Sacrificial Garb')).toEqual({
       name: 'Sacrificial Garb',
       itemClass: 'Body Armours',
