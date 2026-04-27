@@ -5,7 +5,7 @@ import type { Rng } from './rng.js';
  * Table 1 from guide.txt §5: P(final mod count | total inputs in pool).
  * Indexed [totalInputs][finalCount]. Final count ranges 0..3.
  *
- * Source: Reddit guide "TLDR: Recombinator new use cases = GOOD" (3.25 Settlers).
+ * Source: Reddit guide "TLDR: Recombinator new use cases = GOOD" (3.25 Settlers; table unchanged through 3.28).
  */
 export const TABLE1: Record<number, [number, number, number, number]> = {
   0: [1, 0, 0, 0],

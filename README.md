@@ -1,6 +1,6 @@
 # Resimbinator
 
-A web-app simulator for Path of Exile 1's patch-3.25 (Settlers of Kalguur) Recombinator. Paste two items from the game (or hit "Random pair"), mark the mods you want, and see the chance — broken down by which base wins, with the math behind it.
+A web-app simulator for Path of Exile 1's patch-3.28 Recombinator (mechanics unchanged from when it was introduced in 3.25 Settlers of Kalguur). Paste two items from the game (or hit "Random pair"), mark the mods you want, and see the chance — broken down by which base wins, with the math behind it.
 
 **Live: https://resimbinator.vercel.app**
 
