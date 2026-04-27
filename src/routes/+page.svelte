@@ -11,11 +11,13 @@
   import TopBar from '../components/TopBar.svelte';
   import ItemPanel from '../components/ItemPanel.svelte';
   import StatsPanel from '../components/StatsPanel.svelte';
+  import HelpDialog from '../components/HelpDialog.svelte';
 
   let modDb = $state<ModDb | null>(null);
   let appState = $state<AppState>(createEmptyState());
   let loadError = $state<string | null>(null);
   let initialized = $state(false);
+  let helpOpen = $state(false);
 
   onMount(async () => {
     try {
@@ -66,7 +68,11 @@
   }
 </script>
 
-<TopBar onShare={handleShare} onReset={handleReset} />
+<TopBar onShare={handleShare} onReset={handleReset} onHelp={() => (helpOpen = true)} />
+
+{#if helpOpen}
+  <HelpDialog onClose={() => (helpOpen = false)} />
+{/if}
 
 <main class="p-6">
   {#if loadError}

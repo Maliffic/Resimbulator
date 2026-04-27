@@ -2,8 +2,9 @@
   type Props = {
     onShare: () => void;
     onReset: () => void;
+    onHelp: () => void;
   };
-  let { onShare, onReset }: Props = $props();
+  let { onShare, onReset, onHelp }: Props = $props();
 
   let copyConfirm = $state(false);
 
@@ -25,6 +26,9 @@
     </button>
     <button class="text-xs text-poe-text hover:text-poe-rare px-3 py-1.5 bg-poe-bg border border-poe-border hover:border-poe-rare/40 rounded uppercase tracking-wide transition-colors" onclick={onReset}>
       Reset
+    </button>
+    <button class="text-xs text-poe-text hover:text-poe-rare w-8 h-[30px] bg-poe-bg border border-poe-border hover:border-poe-rare/40 rounded font-semibold transition-colors" onclick={onHelp} title="Mod categories &amp; recombinator rules" aria-label="Help">
+      ?
     </button>
   </div>
 </header>

@@ -80,7 +80,23 @@
     return undefined;
   };
 
-  const tooltip = $derived(nnnTooltip(mod));
+  const exclusiveTooltip = (cat: Mod['category']): string | undefined => {
+    const labels: Partial<Record<Mod['category'], string>> = {
+      ExclusiveCrafted: 'Crafted',
+      ExclusiveVeiled: 'Veiled',
+      ExclusiveEssence: 'Essence (untiered)',
+      ExclusiveBreach: 'Breach (drop-only)',
+      ExclusiveIncursion: 'Incursion',
+      ExclusiveBeastAspect: 'Beast aspect',
+      ExclusiveDelve: 'Delve (drop-only)',
+      ExclusiveElevated: 'Elevated influence',
+    };
+    const label = labels[cat];
+    if (!label) return undefined;
+    return `${label} — exclusive mod. Only one exclusive can survive recombination across both items combined.`;
+  };
+
+  const tooltip = $derived(nnnTooltip(mod) ?? exclusiveTooltip(mod.category) ?? (mod.category === 'Fractured' ? 'Fractured — only travels if its host item is picked as the base.' : undefined));
   const isNNN = $derived(mod.category.startsWith('NNN_'));
   const isDesired = $derived(mod.desired === true);
 </script>
