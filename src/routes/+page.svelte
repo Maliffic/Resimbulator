@@ -74,7 +74,7 @@
   <HelpDialog onClose={() => (helpOpen = false)} />
 {/if}
 
-<main class="p-6">
+<main class="p-3 sm:p-6">
   {#if loadError}
     <div class="bg-red-900/30 border border-red-800 rounded p-4 text-red-200">
       {loadError}
@@ -82,7 +82,7 @@
   {:else if !modDb}
     <div class="text-center text-gray-500 py-20">Loading mod database...</div>
   {:else}
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,400px)_1fr] gap-4 max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,400px)_1fr] gap-3 sm:gap-4 max-w-7xl mx-auto">
       <ItemPanel
         item={appState.item1}
         modDb={modDb}
