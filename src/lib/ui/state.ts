@@ -3,15 +3,17 @@
 // Plain-TS helpers for the app's state. The reactivity wrapper ($state) lives in the
 // Svelte component that owns the state; these helpers operate on a snapshot.
 
-import type { Item } from '$lib/recombinator/index.js';
+import type { Item, Mod } from '$lib/recombinator/index.js';
 import { probabilityExact, probabilityExactByBase } from '$lib/recombinator/index.js';
 
 export type Settings = {
   batchSimTrials: number;
+  costPerTry: number;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
   batchSimTrials: 1000,
+  costPerTry: 0.5,
 };
 
 export type AppState = {
@@ -45,6 +47,27 @@ export function toggleDesired(state: AppState, itemId: string, modId: string): v
 export function reset(state: AppState): void {
   state.item1 = null;
   state.item2 = null;
+}
+
+export function removeMod(state: AppState, itemId: string, modId: string): void {
+  const stripFrom = (it: Item | null) => {
+    if (!it || it.id !== itemId) return;
+    it.prefixes = it.prefixes.filter((m) => m.id !== modId);
+    it.suffixes = it.suffixes.filter((m) => m.id !== modId);
+    it.implicits = it.implicits.filter((m) => m.id !== modId);
+  };
+  stripFrom(state.item1);
+  stripFrom(state.item2);
+}
+
+export function addMod(state: AppState, itemId: string, mod: Mod): void {
+  const addTo = (it: Item | null) => {
+    if (!it || it.id !== itemId) return;
+    if (mod.affix === 'prefix' && it.prefixes.length < 3) it.prefixes = [...it.prefixes, mod];
+    else if (mod.affix === 'suffix' && it.suffixes.length < 3) it.suffixes = [...it.suffixes, mod];
+  };
+  addTo(state.item1);
+  addTo(state.item2);
 }
 
 export function allDesiredMods(state: AppState): Item['prefixes'] {

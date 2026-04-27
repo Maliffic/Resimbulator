@@ -59,7 +59,7 @@ function categorizeDef(def: ModDef): {
   return { category: 'RegularExplicit' };
 }
 
-function isEligibleForBase(def: ModDef, base: BaseDef, influence: Influence | undefined): boolean {
+export function isEligibleForBase(def: ModDef, base: BaseDef, influence: Influence | undefined): boolean {
   if (!GEAR_DOMAINS.has(def.domain)) return false;
 
   // Influence: an influenced mod can only roll on a base with that influence.
@@ -106,7 +106,7 @@ function statTextForDef(def: ModDef): string {
   return humanizeStatId(tpl, rngBetween(8, 180));
 }
 
-function defToMod(def: ModDef): Mod {
+export function defToMod(def: ModDef): Mod {
   const cat = categorizeDef(def);
   const mod: Mod = {
     id: `gen_${def.id}_${Math.random().toString(36).slice(2, 8)}`,

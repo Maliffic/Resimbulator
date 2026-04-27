@@ -1,9 +1,10 @@
 <script lang="ts">
-  import type { Item } from '$lib/recombinator/index.js';
+  import type { Item, Mod } from '$lib/recombinator/index.js';
   import type { ModDb } from '$lib/mods/index.js';
   import { parse as parseClipboard } from '$lib/poe-clipboard/index.js';
   import { translate } from '$lib/mods/index.js';
   import ModList from './ModList.svelte';
+  import AddModDialog from './AddModDialog.svelte';
 
   type Props = {
     item: Item | null;
@@ -11,11 +12,14 @@
     label: string;
     onItemChange: (item: Item | null) => void;
     onToggleDesired: (modId: string) => void;
+    onDeleteMod: (modId: string) => void;
+    onAddMod: (mod: Mod) => void;
   };
 
-  let { item, modDb, label, onItemChange, onToggleDesired }: Props = $props();
+  let { item, modDb, label, onItemChange, onToggleDesired, onDeleteMod, onAddMod }: Props = $props();
   let pasteText = $state('');
   let parseError = $state<string | null>(null);
+  let addDialogAffix = $state<'prefix' | 'suffix' | null>(null);
 
   function handlePaste() {
     parseError = null;
@@ -56,7 +60,13 @@
       </div>
     </div>
     <div class="flex-1 overflow-y-auto">
-      <ModList {item} {onToggleDesired} />
+      <ModList
+        {item}
+        {onToggleDesired}
+        onDeleteMod={onDeleteMod}
+        onAddPrefix={() => (addDialogAffix = 'prefix')}
+        onAddSuffix={() => (addDialogAffix = 'suffix')}
+      />
     </div>
   {:else}
     <div class="flex-1 flex flex-col gap-2">
@@ -78,3 +88,13 @@
     </div>
   {/if}
 </div>
+
+{#if item && addDialogAffix}
+  <AddModDialog
+    {item}
+    affix={addDialogAffix}
+    {modDb}
+    onClose={() => (addDialogAffix = null)}
+    onAdd={(mod) => { onAddMod(mod); addDialogAffix = null; }}
+  />
+{/if}

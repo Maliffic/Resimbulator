@@ -4,9 +4,10 @@
   type Props = {
     mod: Mod;
     onToggleDesired: () => void;
+    onDelete?: () => void;
   };
 
-  let { mod, onToggleDesired }: Props = $props();
+  let { mod, onToggleDesired, onDelete }: Props = $props();
 
   const chipColor = (cat: Mod['category']): string => {
     if (cat === 'Implicit') return 'bg-chip-implicit';
@@ -136,5 +137,15 @@
         class="w-4 h-4 accent-yellow-500"
       />
     </label>
+    {#if onDelete}
+      <button
+        class="shrink-0 mt-0.5 text-poe-deepdim hover:text-poe-corrupted text-base leading-none px-1 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+        onclick={onDelete}
+        title="Remove this mod"
+        aria-label="Remove mod"
+      >
+        ×
+      </button>
+    {/if}
   {/if}
 </div>

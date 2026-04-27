@@ -14,10 +14,12 @@
     chanceFromItem2: number;
     desiredCount: number;
     batchTrials: number;
+    costPerTry: number;
     onGenerate: () => void;
+    onCostChange: (n: number) => void;
   };
 
-  let { item1, item2, chance, chanceFromItem1, chanceFromItem2, desiredCount, batchTrials, onGenerate }: Props = $props();
+  let { item1, item2, chance, chanceFromItem1, chanceFromItem2, desiredCount, batchTrials, costPerTry, onGenerate, onCostChange }: Props = $props();
 
   let result = $state<RecombineResult | null>(null);
   let batchData = $state<{
@@ -104,6 +106,28 @@
         <div class="bg-poe-bg border border-poe-border rounded p-2">
           <div class="text-[10px] uppercase tracking-wider text-poe-deepdim">base ← item 2</div>
           <div class="text-lg font-semibold text-poe-text">{(chanceFromItem2 * 100).toFixed(1)}%</div>
+        </div>
+      </div>
+    {/if}
+
+    {#if desiredCount > 0 && chance > 0}
+      <div class="mt-4 w-full max-w-xs text-xs">
+        <div class="flex items-center justify-between gap-2 bg-poe-bg border border-poe-border rounded p-2">
+          <label for="cost-input" class="text-[10px] uppercase tracking-wider text-poe-deepdim shrink-0">Cost / try</label>
+          <input
+            id="cost-input"
+            type="number"
+            min="0"
+            step="0.1"
+            value={costPerTry}
+            onchange={(e) => onCostChange(Number((e.currentTarget as HTMLInputElement).value) || 0)}
+            class="bg-poe-panel border border-poe-divider rounded px-2 py-0.5 text-poe-text w-16 text-right focus:outline-none focus:border-poe-rare/40"
+            aria-label="Cost per recombine"
+          />
+          <span class="text-[10px] text-poe-deepdim">div</span>
+          <span class="text-poe-deepdim">·</span>
+          <span class="text-[10px] uppercase tracking-wider text-poe-deepdim shrink-0">Total</span>
+          <span class="text-poe-rare font-semibold">~{(costPerTry / chance).toFixed(1)} div</span>
         </div>
       </div>
     {/if}

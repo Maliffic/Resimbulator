@@ -4,8 +4,9 @@
     onReset: () => void;
     onHelp: () => void;
     onGenerate: () => void;
+    onLibrary: () => void;
   };
-  let { onShare, onReset, onHelp, onGenerate }: Props = $props();
+  let { onShare, onReset, onHelp, onGenerate, onLibrary }: Props = $props();
 
   let copyConfirm = $state(false);
 
@@ -22,8 +23,11 @@
     <span class="hidden md:inline text-[10px] uppercase tracking-[0.2em] text-poe-deepdim whitespace-nowrap">PoE Recombinator Simulator</span>
   </div>
   <div class="flex gap-1.5 sm:gap-2 shrink-0">
-    <button class="text-xs text-poe-text hover:text-poe-rare px-2.5 sm:px-3 py-1.5 bg-poe-bg border border-poe-border hover:border-poe-rare/40 rounded uppercase tracking-wide transition-colors whitespace-nowrap" onclick={onGenerate} title="Generate two random items">
-      <span class="sm:hidden">Random</span><span class="hidden sm:inline">Random pair</span>
+    <button class="text-xs text-poe-text hover:text-poe-rare px-2.5 sm:px-3 py-1.5 bg-poe-bg border border-poe-border hover:border-poe-rare/40 rounded uppercase tracking-wide transition-colors whitespace-nowrap" onclick={onLibrary} title="Examples and saved scenarios">
+      <span class="sm:hidden">Lib</span><span class="hidden sm:inline">Library</span>
+    </button>
+    <button class="hidden sm:inline-block text-xs text-poe-text hover:text-poe-rare px-2.5 sm:px-3 py-1.5 bg-poe-bg border border-poe-border hover:border-poe-rare/40 rounded uppercase tracking-wide transition-colors whitespace-nowrap" onclick={onGenerate} title="Generate two random items">
+      Random pair
     </button>
     <button class="text-xs text-poe-text hover:text-poe-rare px-2.5 sm:px-3 py-1.5 bg-poe-bg border border-poe-border hover:border-poe-rare/40 rounded uppercase tracking-wide transition-colors whitespace-nowrap" onclick={handleShare}>
       {#if copyConfirm}Copied!{:else}<span class="sm:hidden">Share</span><span class="hidden sm:inline">Share scenario</span>{/if}
