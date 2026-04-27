@@ -1,23 +1,25 @@
 <script lang="ts">
   import type { Item } from '$lib/recombinator/index.js';
-  import type { SavedScenario } from '$lib/ui/persist.js';
+  import type { SavedScenario, WorkflowStage } from '$lib/ui/persist.js';
   import { listPresets } from '$lib/ui/presets.js';
-  import { analyzeScenario } from '$lib/ui/analyze.js';
+  import { analyzeScenario, analyzeWorkflow } from '$lib/ui/analyze.js';
 
   type Props = {
     item1: Item | null;
     item2: Item | null;
     saved: SavedScenario[];
+    workflow: WorkflowStage[];
     costPerTry: number;
     onClose: () => void;
     onLoad: (item1: Item, item2: Item) => void;
     onSave: (name: string) => void;
     onDelete: (name: string) => void;
+    onWorkflowChange: (stages: WorkflowStage[]) => void;
   };
 
-  let { item1, item2, saved, costPerTry, onClose, onLoad, onSave, onDelete }: Props = $props();
+  let { item1, item2, saved, workflow, costPerTry, onClose, onLoad, onSave, onDelete, onWorkflowChange }: Props = $props();
 
-  type Tab = 'examples' | 'saved' | 'compare' | 'plan';
+  type Tab = 'examples' | 'saved' | 'compare' | 'plan' | 'workflow';
   let tab = $state<Tab>('examples');
   let saveName = $state('');
   let compareSelection = $state<Set<string>>(new Set());
@@ -75,6 +77,61 @@
   function pct(n: number): string {
     if (!Number.isFinite(n)) return '∞';
     return `${(n * 100).toFixed(1)}%`;
+  }
+
+  // ---- Workflow tab ----
+
+  let workflowAddScenario = $state('');
+
+  const workflowAnalysis = $derived(analyzeWorkflow(workflow, saved, costPerTry));
+  const workflowFinalCost = $derived.by(() => {
+    if (workflowAnalysis.stages.length === 0) return 0;
+    return Math.max(...workflowAnalysis.stages.map((s) => Number.isFinite(s.cumulativeCost) ? s.cumulativeCost : Infinity));
+  });
+
+  function newStageId(): string {
+    return `s_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+  }
+
+  function addWorkflowStage() {
+    if (!workflowAddScenario) return;
+    if (!saved.some((s) => s.name === workflowAddScenario)) return;
+    const next: WorkflowStage[] = [...workflow, { id: newStageId(), scenarioName: workflowAddScenario, parentIds: [] }];
+    onWorkflowChange(next);
+    workflowAddScenario = '';
+  }
+
+  function removeWorkflowStage(id: string) {
+    // Also strip the removed id from any other stage's parentIds.
+    const next = workflow
+      .filter((s) => s.id !== id)
+      .map((s) => ({ ...s, parentIds: s.parentIds.filter((p) => p !== id) }));
+    onWorkflowChange(next);
+  }
+
+  function toggleParent(stageId: string, parentId: string) {
+    const next = workflow.map((s) => {
+      if (s.id !== stageId) return s;
+      const has = s.parentIds.includes(parentId);
+      return { ...s, parentIds: has ? s.parentIds.filter((p) => p !== parentId) : [...s.parentIds, parentId] };
+    });
+    onWorkflowChange(next);
+  }
+
+  function moveStage(idx: number, dir: -1 | 1) {
+    const target = idx + dir;
+    if (target < 0 || target >= workflow.length) return;
+    const next = [...workflow];
+    [next[idx], next[target]] = [next[target]!, next[idx]!];
+    onWorkflowChange(next);
+  }
+
+  function clearWorkflow() {
+    onWorkflowChange([]);
+  }
+
+  function stageIndex(id: string): number {
+    return workflow.findIndex((s) => s.id === id);
   }
 
   function handleLoadPreset(id: string) {
@@ -142,6 +199,13 @@
         onclick={() => (tab = 'plan')}
       >
         Plan
+      </button>
+      <button
+        class="px-3 py-1.5 text-xs uppercase tracking-wide border-b-2 transition-colors
+          {tab === 'workflow' ? 'border-poe-rare text-poe-rare' : 'border-transparent text-poe-dim hover:text-poe-text'}"
+        onclick={() => (tab = 'workflow')}
+      >
+        Workflow
       </button>
     </div>
 
@@ -342,6 +406,135 @@
               </table>
             </div>
           {/if}
+        {/if}
+      </div>
+    {:else if tab === 'workflow'}
+      <div class="space-y-3">
+        {#if saved.length === 0}
+          <div class="text-poe-dim text-sm text-center py-6">
+            Save scenarios first, then build a workflow that wires them into a multi-step craft.
+          </div>
+        {:else}
+          <div class="text-[11px] text-poe-deepdim leading-snug">
+            Each stage produces one successful donor; later stages list earlier ones as <span class="text-poe-text">parents</span> if their result feeds in. Cumulative cost rolls upstream costs into each stage. Final-craft cost is the largest cumulative across all stages.
+          </div>
+
+          {#if workflowAnalysis.hasCycles}
+            <div class="bg-poe-corrupted/10 border border-poe-corrupted/40 rounded p-2 text-xs text-poe-corrupted">
+              ⚠ Workflow has a cycle — one stage references itself through its ancestors. Numbers below are unreliable until that's fixed.
+            </div>
+          {/if}
+
+          {#if workflowAnalysis.stages.length > 0}
+            <div class="space-y-1.5">
+              {#each workflowAnalysis.stages as r, i (r.stage.id)}
+                <div class="bg-poe-bg border border-poe-border rounded p-2.5">
+                  <div class="flex items-start gap-2 mb-2">
+                    <span class="text-[10px] text-poe-deepdim font-mono mt-0.5 shrink-0">#{i + 1}</span>
+                    <div class="flex-1 min-w-0">
+                      <button
+                        class="text-sm text-poe-text hover:text-poe-rare text-left font-medium truncate block"
+                        onclick={() => { if (r.scenario) { onLoad(r.scenario.item1, r.scenario.item2); onClose(); } }}
+                        disabled={!r.scenario}
+                      >
+                        {r.stage.scenarioName}
+                      </button>
+                      {#if r.scenario}
+                        <div class="text-[10px] text-poe-deepdim truncate">{r.scenario.item1.base} · {r.scenario.item2.base}</div>
+                      {:else}
+                        <div class="text-[10px] text-poe-corrupted">{r.invalidReason ?? 'invalid'}</div>
+                      {/if}
+                    </div>
+                    <div class="flex shrink-0">
+                      <button class="text-poe-deepdim hover:text-poe-text px-1" onclick={() => moveStage(i, -1)} disabled={i === 0} aria-label="Move up" title="Move up">↑</button>
+                      <button class="text-poe-deepdim hover:text-poe-text px-1" onclick={() => moveStage(i, 1)} disabled={i === workflow.length - 1} aria-label="Move down" title="Move down">↓</button>
+                      <button class="text-poe-deepdim hover:text-poe-corrupted px-1" onclick={() => removeWorkflowStage(r.stage.id)} aria-label="Remove" title="Remove">×</button>
+                    </div>
+                  </div>
+
+                  {#if i > 0}
+                    <div class="mb-2">
+                      <div class="text-[10px] uppercase tracking-wider text-poe-deepdim mb-1">Inputs from</div>
+                      <div class="flex flex-wrap gap-1">
+                        {#each workflow.slice(0, i) as candidate (candidate.id)}
+                          {@const isParent = r.stage.parentIds.includes(candidate.id)}
+                          <button
+                            class="text-[10px] px-2 py-0.5 rounded transition-colors
+                              {isParent ? 'bg-poe-rare/20 border border-poe-rare/40 text-poe-rare' : 'bg-poe-panel border border-poe-divider text-poe-dim hover:text-poe-text hover:border-poe-rare/30'}"
+                            onclick={() => toggleParent(r.stage.id, candidate.id)}
+                          >
+                            #{stageIndex(candidate.id) + 1} {candidate.scenarioName}
+                          </button>
+                        {/each}
+                      </div>
+                    </div>
+                  {/if}
+
+                  {#if r.own}
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs">
+                      <div class="bg-poe-panel border border-poe-divider rounded px-2 py-1">
+                        <div class="text-[9px] uppercase tracking-wider text-poe-deepdim">Chance</div>
+                        <div class="text-poe-rare font-semibold">{pct(r.own.chance)}</div>
+                      </div>
+                      <div class="bg-poe-panel border border-poe-divider rounded px-2 py-1">
+                        <div class="text-[9px] uppercase tracking-wider text-poe-deepdim">Own tries</div>
+                        <div class="text-poe-text font-semibold">~{fmtNum(r.own.expectedTries)}</div>
+                      </div>
+                      <div class="bg-poe-panel border border-poe-divider rounded px-2 py-1">
+                        <div class="text-[9px] uppercase tracking-wider text-poe-deepdim">Cum. tries</div>
+                        <div class="text-poe-text font-semibold">~{fmtNum(r.cumulativeTries)}</div>
+                      </div>
+                      <div class="bg-poe-panel border border-poe-divider rounded px-2 py-1">
+                        <div class="text-[9px] uppercase tracking-wider text-poe-deepdim">Cum. cost</div>
+                        <div class="text-poe-text font-semibold">~{fmtNum(r.cumulativeCost)} div</div>
+                      </div>
+                    </div>
+                  {/if}
+                </div>
+              {/each}
+            </div>
+
+            <div class="bg-poe-bg border border-poe-rare/30 rounded p-3 text-xs">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <div class="text-[10px] uppercase tracking-wider text-poe-deepdim">Final-craft cost</div>
+                  <div class="text-[10px] text-poe-deepdim">max cumulative across all stages</div>
+                </div>
+                <span class="text-lg font-semibold text-poe-rare">~{fmtNum(workflowFinalCost)} div</span>
+              </div>
+            </div>
+          {/if}
+
+          <div class="bg-poe-bg border border-poe-border rounded p-2.5">
+            <div class="text-[10px] uppercase tracking-wider text-poe-deepdim mb-2">Add stage</div>
+            <div class="flex gap-2">
+              <select
+                bind:value={workflowAddScenario}
+                class="flex-1 bg-poe-panel border border-poe-divider rounded px-2 py-1.5 text-xs text-poe-text focus:outline-none focus:border-poe-rare/40"
+              >
+                <option value="">Pick a saved scenario…</option>
+                {#each saved as s (s.name)}
+                  <option value={s.name}>{s.name}</option>
+                {/each}
+              </select>
+              <button
+                class="bg-poe-border hover:bg-[#4d4030] disabled:opacity-50 disabled:cursor-not-allowed text-poe-rare rounded px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition"
+                onclick={addWorkflowStage}
+                disabled={!workflowAddScenario}
+              >
+                Add
+              </button>
+              {#if workflow.length > 0}
+                <button
+                  class="text-poe-dim hover:text-poe-corrupted text-xs uppercase tracking-wide px-2 py-1.5"
+                  onclick={clearWorkflow}
+                  title="Clear workflow"
+                >
+                  Clear
+                </button>
+              {/if}
+            </div>
+          </div>
         {/if}
       </div>
     {/if}

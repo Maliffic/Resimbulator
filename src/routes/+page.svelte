@@ -6,8 +6,8 @@
   } from '$lib/ui/state.js';
   import type { AppState } from '$lib/ui/state.js';
   import { getModDb } from '$lib/ui/mod-db-fetch.js';
-  import { saveState, loadState, loadScenarios, saveScenarios } from '$lib/ui/persist.js';
-  import type { SavedScenario } from '$lib/ui/persist.js';
+  import { saveState, loadState, loadScenarios, saveScenarios, loadWorkflow, saveWorkflow } from '$lib/ui/persist.js';
+  import type { SavedScenario, WorkflowStage } from '$lib/ui/persist.js';
   import { encodeStateToUrl, decodeStateFromUrl } from '$lib/ui/url-state.js';
   import { generateRandomPair } from '$lib/ui/generate.js';
   import type { ModDb } from '$lib/mods/index.js';
@@ -25,6 +25,7 @@
   let helpOpen = $state(false);
   let libraryOpen = $state(false);
   let savedScenarios = $state<SavedScenario[]>([]);
+  let workflow = $state<WorkflowStage[]>([]);
 
   onMount(async () => {
     try {
@@ -49,6 +50,7 @@
         if (typeof persisted.costPerTry === 'number') appState.settings.costPerTry = persisted.costPerTry;
       }
       savedScenarios = loadScenarios(window.localStorage);
+      workflow = loadWorkflow(window.localStorage);
 
       initialized = true;
     } catch (err) {
@@ -110,6 +112,11 @@
   function handleCostChange(n: number) {
     appState.settings.costPerTry = Math.max(0, n);
   }
+
+  function handleWorkflowChange(stages: WorkflowStage[]) {
+    workflow = stages;
+    saveWorkflow(stages, window.localStorage);
+  }
 </script>
 
 <TopBar
@@ -129,11 +136,13 @@
     item1={appState.item1}
     item2={appState.item2}
     saved={savedScenarios}
+    workflow={workflow}
     costPerTry={appState.settings.costPerTry}
     onClose={() => (libraryOpen = false)}
     onLoad={handleLoadPair}
     onSave={handleSaveScenario}
     onDelete={handleDeleteScenario}
+    onWorkflowChange={handleWorkflowChange}
   />
 {/if}
 

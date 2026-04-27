@@ -3,6 +3,7 @@ import type { Item } from '$lib/recombinator/index.js';
 
 const KEY = 'Resimbinator :state:v1';
 const SCENARIOS_KEY = 'Resimbinator :scenarios:v1';
+const WORKFLOW_KEY = 'Resimbinator :workflow:v1';
 
 export type PersistedState = {
   item1: Item | null;
@@ -52,6 +53,32 @@ export function loadScenarios(storage: Storage): SavedScenario[] {
 export function saveScenarios(scenarios: SavedScenario[], storage: Storage): void {
   try {
     storage.setItem(SCENARIOS_KEY, JSON.stringify(scenarios));
+  } catch {
+    // ignore
+  }
+}
+
+/** A single in-progress workflow — one DAG of stages. v1 holds one at a time. */
+export type WorkflowStage = {
+  id: string;
+  scenarioName: string;
+  parentIds: string[];
+};
+
+export function loadWorkflow(storage: Storage): WorkflowStage[] {
+  try {
+    const raw = storage.getItem(WORKFLOW_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as WorkflowStage[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveWorkflow(stages: WorkflowStage[], storage: Storage): void {
+  try {
+    storage.setItem(WORKFLOW_KEY, JSON.stringify(stages));
   } catch {
     // ignore
   }
