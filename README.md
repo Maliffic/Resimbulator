@@ -1,117 +1,95 @@
 # Resimbinator
 
-A web-app simulator for Path of Exile 1's patch-3.25 (Settlers of Kalguur) Recombinator. Paste two items from the game, mark the mods you want, see the chance of getting them on a recombine. Roll once, or run 1,000 trials and see the histogram.
+A web-app simulator for Path of Exile 1's patch-3.25 (Settlers of Kalguur) Recombinator. Paste two items from the game (or hit "Random pair"), mark the mods you want, and see the chance — broken down by which base wins, with the math behind it.
 
-## What's in here
+**Live: https://resimbinator.vercel.app**
 
-**Engine (Plan 1):**
+## What it does
 
-- Pure-TypeScript recombinator math engine implementing the rules from the [community guide](./guide.txt) §5
-- Table 1 distribution sampler, eligibility filter (NNN / Fractured / Exclusive), single + batch simulator
-- Both Monte Carlo and exact-enumeration probability calculators
-- Validated against guide §6 (grasping mail breach scenario) and §7 (wand counterweight ≈ 35%)
-- Cross-check property test: `probabilityExact` agrees with `probabilityMonteCarlo(30k trials)` within 1.5% on 30 random scenarios
+- **Paste from PoE** (Ctrl+C in-game). Parses the clipboard format with or without "Show Modifier Type Hints"
+- **Or generate a random pair** if you don't want to grab items by hand — picks two bases of the same item class, samples real mods (~70% regular / 25% NNN / 5% exclusive) so the chip variety is visible
+- **Tick desired mods** → chance % updates instantly, plus a per-base split (`base ← item 1` / `base ← item 2`) that exposes the NNN ladder mechanic
+- **Show breakdown** dialog — walks through the math: the 50/50 base pick, the combined mod pool with per-base eligibility (✓/✗ with reasons like "requires evasion on the base"), the Table 1 row for affix counts, and the weighted-sum formula
+- **Inline editing** — × any mod to delete, "+ Add prefix/suffix" to search the mod-DB and insert one (filtered by what's eligible for the host base)
+- **Recombine once** → modal with the rolled item; **Run 1000×** → histogram of prefix/suffix counts + hit rate + expected attempts
+- **Cost calculator** → enter a divine-per-try cost, total expected cost shows up next to the chance
+- **Library dialog** with five tabs:
+  - **Examples** — preset scenarios that demonstrate each rule (NNN_Defence, NNN_Influenced, exclusive collision, fractured-host)
+  - **My saved** — name and store scenarios in localStorage
+  - **Compare** — pick saved scenarios, see chance / per-base split / expected tries / cost in a table
+  - **Plan** — chain saved scenarios as sequential steps with cumulative cost
+  - **Workflow** — wire stages into a DAG (multi-step crafts like the NNN-ladder method); cost rolls up the tree
+- **Help dialog** with the full mod-category reference (NNN, Fractured, Exclusive, edge cases not modelled)
+- **Auto-save** to localStorage; share a scenario via URL
 
-**Clipboard parser (Plan 2):**
+## Tech
 
-- Parses PoE's in-game Ctrl+C output into a structured `ParsedItem`
-- Handles items with and without "Show Modifier Type Hints" enabled
-- Detects rarity, item class, base, item level, quality, influence, corrupted, synthesised
-- Extracts mod tier, name, tags, and `crafted/veiled/fractured/implicit` flags
-- Validated against 10 fixture variations
+- SvelteKit 2 (Svelte 5 runes) + TypeScript + Tailwind, static-adapter SPA
+- Pure-TS recombinator engine — no Svelte deps, fully unit-tested
+- RePoE-derived mod database (~12k entries) built via `bun run update-mod-db`
+- Bun for install / build / test
+- Vercel for hosting (`vercel.json` included)
 
-**Mods + categorizer (Plan 3):**
-
-- Hand-curated base-items database (~40 popular Settlers crafting bases)
-- RePoE-derived mod database build script (`bun run update-mod-db`)
-- Categorizer: maps each `ParsedMod` to the correct `ModCategory` and applies per-mod requirements
-- Translator: `ParsedItem` → engine `Item`, ready for the simulator
-
-**SvelteKit UI (Plan 4):**
-
-- Three-panel layout (item 1 / live chance / item 2)
-- Paste from PoE → live category-chip rendering of mods
-- Toggle "desired" checkboxes → chance % updates instantly
-- "Recombine once" → modal with rolled item
-- "Run 1000×" → histogram of prefix/suffix counts + hit rate + expected attempts
-- Auto-saves to localStorage, share scenarios via URL
-
-## Setup
+## Run locally
 
 ```bash
 bun install
-bun run typecheck
-bun test
-```
-
-## Run the app locally
-
-```bash
 bun run dev
 ```
 
-Open `http://localhost:5173`. Paste two items from PoE (Ctrl+C in-game), tick the mods you want, see the chance update live, click Recombine.
-
-Production build:
+Open http://localhost:5173, paste an item or hit "Generate random pair".
 
 ```bash
-bun run build && bun run preview
+bun run build && bun run preview   # production build + local preview
+bun run test                       # vitest suite
+bun run check                      # svelte-check + tsc
 ```
-
-## Deploy
-
-`vercel.json` is included for one-command deploy:
-
-```bash
-vercel --prod
-```
-
-The app is a static SPA — works on any static host: GitHub Pages, Netlify, Cloudflare Pages.
 
 ## Mod database
 
-The UI ships with a small dev-fixture mod database (`static/mod-db-fixture.json`) that covers the categorizer's rule-coverage tests but isn't comprehensive. To populate the full RePoE-derived database (one-time, requires network):
+The UI ships with a tiny dev fixture (`static/mod-db-fixture.json`) that's enough for the categorizer's rule tests. To populate the full RePoE-derived database (~3 MB, one-time, requires network):
 
 ```bash
 bun run update-mod-db
 ```
 
-Writes `static/mod-db.json` (~1-2 MB gzipped). The UI prefers `mod-db.json` and falls back to the fixture.
+This writes `static/mod-db.json`. The UI prefers `mod-db.json` and falls back to the fixture.
 
-## CLI
-
-There's also a stdin/stdout CLI for headless use:
-
-```bash
-echo '{"command":"probability","seed":1,"trials":10000,"item1":{...},"item2":{...}}' | bun run engine
-```
-
-Commands: `probability`, `simulate`, `parse`, `translate`. See `tests/cli/main.test.ts` for input shapes.
-
-## Layout
+## Project layout
 
 ```
-src/lib/recombinator/    pure-TS math engine
+src/lib/recombinator/    pure-TS math engine (Table 1 sampler, eligibility, exact + Monte Carlo, explain)
 src/lib/poe-clipboard/   clipboard parser
-src/lib/mods/            mod database + categorizer + translator
-src/lib/ui/              UI state, persistence, URL share, mod-DB browser fetch
-src/components/          Svelte components (ItemPanel, StatsPanel, dialogs, etc.)
+src/lib/mods/            mod database, categorizer, translator
+src/lib/ui/              UI state, persist, URL share, generate, presets, analyze
+src/components/          Svelte components (panels, dialogs, mod rows)
 src/routes/              SvelteKit pages
-src/cli/                 stdin/stdout CLI
+src/cli/                 stdin/stdout CLI (probability/simulate/parse/translate)
 scripts/                 build-mod-db.ts
 tests/                   unit + integration + snapshot tests
-docs/superpowers/        design + implementation plans
+docs/                    design notes, NNN-ladder workflow reference
 ```
 
 ## Validation
 
-`bun test` executes the full suite (currently 146 tests across 26 files):
+`bun run test` runs the full suite — currently 146 tests across 26 files:
 
-- Engine unit + integration tests, guide examples, cross-check property test
-- Parser unit tests + fixture snapshot tests
+- Engine unit + integration tests, guide §6 (grasping mail breach) and §7 (wand counterweight ≈ 35%) examples, cross-check property test against Monte Carlo
+- Parser unit tests + fixture snapshots for ~10 clipboard variations
 - Categorizer rule coverage + translator round-trips
 - UI: state helpers, localStorage round-trip, URL encode/decode
 - CLI integration tests
+
+## Caveats / not modelled
+
+- Legacy IIQ mod (permanent leagues only)
+- Has Abyssal Socket + base-at-max-sockets interaction
+- Workflow tab assumes one successful donor per stage — variance from batched parallel attempts isn't modelled
+- Generated stat texts are humanized RePoE stat IDs (`additional_strength` → "+47 to Strength"), not the exact PoE wording
+
+## Disclaimer
+
+Not affiliated with or endorsed by Grinding Gear Games. Path of Exile is © Grinding Gear Games. Mod data sourced from the open-source [RePoE](https://github.com/repoe-fork/repoe-fork.github.io) project. Recombinator mechanics are based on the [community guide](docs/guide.txt) and the [PoE Wiki](https://www.poewiki.net/wiki/Recombinator).
 
 ## License
 
