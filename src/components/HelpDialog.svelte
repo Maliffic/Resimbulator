@@ -14,14 +14,14 @@
     <div class="flex items-baseline justify-between border-b border-poe-border pb-2 mb-4">
       <div>
         <div class="text-[10px] uppercase tracking-[0.2em] text-poe-deepdim">Reference</div>
-        <div class="text-base font-semibold text-poe-rare">Mod categories &amp; recombinator rules</div>
+        <div class="text-base font-semibold text-poe-rare">Unpredictable Recombination — mod categories &amp; rules</div>
       </div>
       <button class="text-poe-deepdim hover:text-poe-text text-xl leading-none" onclick={onClose} aria-label="close">×</button>
     </div>
 
     <div class="space-y-5 text-sm text-poe-text leading-relaxed">
       <section>
-        <div class="text-poe-rare font-semibold uppercase tracking-wide text-xs mb-1">How recombination works</div>
+        <div class="text-poe-rare font-semibold uppercase tracking-wide text-xs mb-1">How Unpredictable Recombination works</div>
         <p class="text-poe-dim">
           Two items go in. The simulator picks one base 50/50, pools both items' mods, samples a final
           prefix/suffix count from the guide's <span class="text-poe-text">Table 1</span>, then draws mods at

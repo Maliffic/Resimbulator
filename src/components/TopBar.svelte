@@ -20,7 +20,7 @@
 <header class="bg-poe-panel border-b border-poe-border px-3 sm:px-6 py-3 flex items-center justify-between gap-2">
   <div class="flex items-baseline gap-3 min-w-0 flex-shrink">
     <span class="font-semibold text-base sm:text-lg text-poe-fractured drop-shadow-[0_0_3px_rgba(255,255,119,0.25)] uppercase tracking-wide truncate">Resimbinator </span>
-    <span class="hidden md:inline text-[10px] uppercase tracking-[0.2em] text-poe-deepdim whitespace-nowrap">PoE Recombinator Simulator</span>
+    <span class="hidden md:inline text-[10px] uppercase tracking-[0.2em] text-poe-deepdim whitespace-nowrap">PoE Unpredictable Recombination Simulator</span>
   </div>
   <div class="flex gap-1.5 sm:gap-2 shrink-0">
     <button class="text-xs text-poe-text hover:text-poe-rare px-2.5 sm:px-3 py-1.5 bg-poe-bg border border-poe-border hover:border-poe-rare/40 rounded uppercase tracking-wide transition-colors whitespace-nowrap" onclick={onLibrary} title="Examples and saved scenarios">
