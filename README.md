@@ -4,6 +4,8 @@ A web-app simulator for Path of Exile 1's patch-3.25 (Settlers of Kalguur) Recom
 
 **Live: https://resimbinator.vercel.app**
 
+![Resimbinator workspace](docs/screenshot.png)
+
 ## What it does
 
 - **Paste from PoE** (Ctrl+C in-game). Parses the clipboard format with or without "Show Modifier Type Hints"
