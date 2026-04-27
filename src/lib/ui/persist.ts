@@ -1,7 +1,7 @@
 // src/lib/ui/persist.ts
 import type { Item } from '$lib/recombinator/index.js';
 
-const KEY = 'resimbulator:state:v1';
+const KEY = 'Resimbinator :state:v1';
 
 export type PersistedState = {
   item1: Item | null;

@@ -6,6 +6,13 @@ import { lookupBase } from './base-db.js';
 import { categorize } from './categorize.js';
 
 export function translate(parsed: ParsedItem, db: ModDb): Item {
+  if (parsed.unknown.length > 0) {
+    throw new Error(
+      "Couldn't determine affixes for one or more mods — 'Advanced Mod Descriptions' is off in PoE. " +
+      'Enable it (Options → UI, or press Alt before copying) and re-copy the item.',
+    );
+  }
+
   const id = globalThis.crypto.randomUUID();
   const baseDef = lookupBase(parsed.base);
   const attributeBase: AttributeBase = baseDef?.attributeBase ?? 'pure';

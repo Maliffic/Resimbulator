@@ -1,4 +1,4 @@
-# Resimbulator UI Implementation Plan (Plan 4 of 4)
+# Resimbinator UI Implementation Plan (Plan 4 of 4)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -8,9 +8,10 @@
 
 **Tech Stack:** SvelteKit 2.x (Svelte 5 with runes), Tailwind CSS 3.x, Vite 5, `@sveltejs/adapter-static`, `pako` for compression. Vitest carries over for unit tests; Playwright optional (deferred).
 
-**Spec reference:** `docs/superpowers/specs/2026-04-26-resimbulator-design.md` sections "UI layout" and "Persistence & share-URL".
+**Spec reference:** `docs/superpowers/specs/2026-04-26-Resimbinator -design.md` sections "UI layout" and "Persistence & share-URL".
 
 **Out of scope for Plan 4 (deferrable to v1.1):**
+
 - In-app mod editor (add/remove/modify mods after pasting). v1 is paste-only; users repaste from PoE to test variations.
 - Mod-search dialog with full DB browsing
 - Theme toggle / settings panel polish
@@ -24,6 +25,7 @@
 ## File Structure
 
 Created or modified in this plan:
+
 ```
 package.json                      # MODIFIED: add SvelteKit + Tailwind + pako; add scripts
 tsconfig.json                     # MODIFIED: extend SvelteKit's generated tsconfig
@@ -79,6 +81,7 @@ deploy/
 ## Task 1: Install SvelteKit + Tailwind deps; configure base files
 
 **Files:**
+
 - Modify: `package.json`
 - Create: `svelte.config.js`
 - Create: `vite.config.ts`
@@ -92,7 +95,7 @@ deploy/
 - [ ] **Step 1: Install deps**
 
 ```bash
-cd /home/nick/projects/personal/Resimbulator
+cd /home/nick/projects/personal/Resimbinator
 npm install --save-dev \
   @sveltejs/kit@^2 \
   @sveltejs/adapter-static@^3 \
@@ -199,11 +202,11 @@ export default {
       colors: {
         // Mod category chip colors. Accessible enough for color-blind users.
         chip: {
-          regular:    '#4b5563',  // gray-600
-          exclusive:  '#dc2626',  // red-600
-          nnn:        '#d97706',  // amber-600
-          fractured:  '#2563eb',  // blue-600
-          implicit:   '#6b7280',  // gray-500
+          regular: '#4b5563', // gray-600
+          exclusive: '#dc2626', // red-600
+          nnn: '#d97706', // amber-600
+          fractured: '#2563eb', // blue-600
+          implicit: '#6b7280', // gray-500
         },
       },
     },
@@ -221,7 +224,7 @@ export default {
     <meta charset="utf-8" />
     <link rel="icon" href="%sveltekit.assets%/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Resimbulator</title>
+    <title>Resimbinator</title>
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover" class="bg-gray-950 text-gray-100">
@@ -267,7 +270,7 @@ export {};
 </script>
 
 <main class="min-h-screen p-6">
-  <h1 class="text-3xl font-semibold">Resimbulator</h1>
+  <h1 class="text-3xl font-semibold">Resimbinator </h1>
   <p class="text-gray-400 mt-2">UI scaffold — feature wiring lands in subsequent tasks.</p>
 </main>
 ```
@@ -318,10 +321,10 @@ static/mod-db.json
 
 ```bash
 npm run dev &
-sleep 3 && curl -s http://localhost:5173/ | grep -i 'resimbulator' && pkill -f 'vite dev'
+sleep 3 && curl -s http://localhost:5173/ | grep -i 'Resimbinator ' && pkill -f 'vite dev'
 ```
 
-Expected: page returns containing "Resimbulator" text. (Or run `npm run dev` and visit `http://localhost:5173/` manually to verify.)
+Expected: page returns containing "Resimbinator " text. (Or run `npm run dev` and visit `http://localhost:5173/` manually to verify.)
 
 - [ ] **Step 16: Verify existing tests still pass**
 
@@ -349,11 +352,13 @@ git commit -m "feat(ui): SvelteKit + Tailwind scaffold (placeholder page)"
 The translator imports `randomUUID` from `node:crypto`. In the browser, that import doesn't resolve. Switch to `globalThis.crypto.randomUUID()` which works in both Node 20+ and modern browsers.
 
 **Files:**
+
 - Modify: `src/lib/mods/translate.ts`
 
 - [ ] **Step 1: Edit `translate.ts`**
 
 Find the line:
+
 ```ts
 import { randomUUID } from 'node:crypto';
 ```
@@ -361,11 +366,13 @@ import { randomUUID } from 'node:crypto';
 Delete it.
 
 Find the two usages:
+
 ```ts
 const id = randomUUID();
 ```
 
 Replace with:
+
 ```ts
 const id = globalThis.crypto.randomUUID();
 ```
@@ -395,6 +402,7 @@ git commit -m "fix(mods): use globalThis.crypto for browser compatibility"
 In the SPA, fetch the mod-DB JSON once on first load, then cache in IndexedDB. Subsequent loads use the cache.
 
 **Files:**
+
 - Create: `src/lib/ui/mod-db-fetch.ts`
 - Create: `static/mod-db-fixture.json` (committed dev fallback — copy of `tests/fixtures/mods/fixture-mod-db.json`)
 
@@ -413,7 +421,7 @@ cp tests/fixtures/mods/fixture-mod-db.json static/mod-db-fixture.json
 import type { ModDef, ModDb } from '$lib/mods/index.js';
 import { loadModDb } from '$lib/mods/index.js';
 
-const DB_NAME = 'resimbulator';
+const DB_NAME = 'Resimbinator ';
 const DB_VERSION = 1;
 const STORE = 'mod-db';
 const KEY = 'singleton';
@@ -495,6 +503,7 @@ git commit -m "feat(ui): browser mod-db loader with IndexedDB cache + network fe
 The state holds two items, derived chance, simulation results, and settings.
 
 **Files:**
+
 - Create: `src/lib/ui/state.svelte.ts`
 - Create: `tests/ui/state.test.ts`
 
@@ -508,16 +517,32 @@ import type { Item } from '../../src/lib/recombinator/index.js';
 import { loadModDb } from '../../src/lib/mods/index.js';
 import { readFileSync } from 'node:fs';
 
-const fixtureDb = loadModDb(JSON.parse(readFileSync('tests/fixtures/mods/fixture-mod-db.json', 'utf8')));
+const fixtureDb = loadModDb(
+  JSON.parse(readFileSync('tests/fixtures/mods/fixture-mod-db.json', 'utf8')),
+);
 
 const sampleItem = (id: string): Item => ({
-  id, base: 'Sacrificial Garb', itemClass: 'Body Armours', itemLevel: 86,
-  attributeBase: 'str_int', defenceTags: ['armour', 'energy_shield'],
-  influence: undefined, corrupted: false, synthesised: false,
+  id,
+  base: 'Sacrificial Garb',
+  itemClass: 'Body Armours',
+  itemLevel: 86,
+  attributeBase: 'str_int',
+  defenceTags: ['armour', 'energy_shield'],
+  influence: undefined,
+  corrupted: false,
+  synthesised: false,
   implicits: [],
-  prefixes: [{
-    id: 'p1', affix: 'prefix', category: 'RegularExplicit', name: 'p1', tier: 1, statText: '', desired: true,
-  }],
+  prefixes: [
+    {
+      id: 'p1',
+      affix: 'prefix',
+      category: 'RegularExplicit',
+      name: 'p1',
+      tier: 1,
+      statText: '',
+      desired: true,
+    },
+  ],
   suffixes: [],
 });
 
@@ -596,8 +621,10 @@ export function createState(_modDb: ModDb): AppState {
 
   const allDesired = $derived.by(() => {
     const all = [
-      ...(item1?.prefixes ?? []), ...(item1?.suffixes ?? []),
-      ...(item2?.prefixes ?? []), ...(item2?.suffixes ?? []),
+      ...(item1?.prefixes ?? []),
+      ...(item1?.suffixes ?? []),
+      ...(item2?.prefixes ?? []),
+      ...(item2?.suffixes ?? []),
     ];
     return all.filter((m) => m.desired === true);
   });
@@ -609,8 +636,12 @@ export function createState(_modDb: ModDb): AppState {
   });
 
   return {
-    get item1() { return item1; },
-    get item2() { return item2; },
+    get item1() {
+      return item1;
+    },
+    get item2() {
+      return item2;
+    },
     settings,
     setItem(slot, it) {
       if (slot === 1) item1 = it;
@@ -635,8 +666,12 @@ export function createState(_modDb: ModDb): AppState {
       item1 = null;
       item2 = null;
     },
-    get chance() { return chance; },
-    get desiredCount() { return allDesired.length; },
+    get chance() {
+      return chance;
+    },
+    get desiredCount() {
+      return allDesired.length;
+    },
   };
 }
 ```
@@ -664,6 +699,7 @@ git commit -m "feat(ui): state store with reactive chance via Svelte runes"
 ## Task 5: localStorage persistence
 
 **Files:**
+
 - Create: `src/lib/ui/persist.ts`
 - Create: `tests/ui/persist.test.ts`
 
@@ -676,20 +712,34 @@ import { saveState, loadState } from '../../src/lib/ui/persist.js';
 import type { Item } from '../../src/lib/recombinator/index.js';
 
 const sampleItem = (id: string): Item => ({
-  id, base: 'X', itemClass: 'Y', itemLevel: 86,
-  attributeBase: 'str', defenceTags: ['armour'],
-  influence: undefined, corrupted: false, synthesised: false,
-  implicits: [], prefixes: [], suffixes: [],
+  id,
+  base: 'X',
+  itemClass: 'Y',
+  itemLevel: 86,
+  attributeBase: 'str',
+  defenceTags: ['armour'],
+  influence: undefined,
+  corrupted: false,
+  synthesised: false,
+  implicits: [],
+  prefixes: [],
+  suffixes: [],
 });
 
 const fakeStorage = (): Storage => {
   const map = new Map<string, string>();
   return {
-    get length() { return map.size; },
+    get length() {
+      return map.size;
+    },
     clear: () => map.clear(),
     getItem: (k) => map.get(k) ?? null,
-    setItem: (k, v) => { map.set(k, v); },
-    removeItem: (k) => { map.delete(k); },
+    setItem: (k, v) => {
+      map.set(k, v);
+    },
+    removeItem: (k) => {
+      map.delete(k);
+    },
     key: (i) => Array.from(map.keys())[i] ?? null,
   };
 };
@@ -722,7 +772,7 @@ describe('persist', () => {
   });
 
   it('returns empty state on corrupt JSON', () => {
-    storage.setItem('resimbulator:state:v1', 'not json');
+    storage.setItem('Resimbinator :state:v1', 'not json');
     const loaded = loadState(storage);
     expect(loaded.item1).toBeNull();
   });
@@ -735,7 +785,7 @@ describe('persist', () => {
 // src/lib/ui/persist.ts
 import type { Item } from '$lib/recombinator/index.js';
 
-const KEY = 'resimbulator:state:v1';
+const KEY = 'Resimbinator :state:v1';
 
 export type PersistedState = {
   item1: Item | null;
@@ -776,6 +826,7 @@ git commit -m "feat(ui): localStorage persistence with versioned schema"
 ## Task 6: Share-URL encoding
 
 **Files:**
+
 - Create: `src/lib/ui/url-state.ts`
 - Create: `tests/ui/url-state.test.ts`
 
@@ -788,11 +839,26 @@ import { encodeStateToUrl, decodeStateFromUrl } from '../../src/lib/ui/url-state
 import type { Item } from '../../src/lib/recombinator/index.js';
 
 const sampleItem = (id: string): Item => ({
-  id, base: 'Sacrificial Garb', itemClass: 'Body Armours', itemLevel: 86,
-  attributeBase: 'str_int', defenceTags: ['armour', 'energy_shield'],
-  influence: undefined, corrupted: false, synthesised: false,
+  id,
+  base: 'Sacrificial Garb',
+  itemClass: 'Body Armours',
+  itemLevel: 86,
+  attributeBase: 'str_int',
+  defenceTags: ['armour', 'energy_shield'],
+  influence: undefined,
+  corrupted: false,
+  synthesised: false,
   implicits: [],
-  prefixes: [{ id: 'p1', affix: 'prefix', category: 'RegularExplicit', name: 'P1', tier: 1, statText: '+# Damage' }],
+  prefixes: [
+    {
+      id: 'p1',
+      affix: 'prefix',
+      category: 'RegularExplicit',
+      name: 'P1',
+      tier: 1,
+      statText: '+# Damage',
+    },
+  ],
   suffixes: [],
 });
 
@@ -885,6 +951,7 @@ git commit -m "feat(ui): share-URL encoding via deflate + base64url"
 ## Task 7: ItemPanel component (paste textarea + populated view)
 
 **Files:**
+
 - Create: `src/components/ItemPanel.svelte`
 - Create: `src/components/ModRow.svelte`
 - Create: `src/components/ModList.svelte`
@@ -1083,6 +1150,7 @@ git commit -m "feat(ui): ItemPanel + ModList + ModRow components"
 ## Task 8: Stats panel + result + batch-sim modals
 
 **Files:**
+
 - Create: `src/components/StatsPanel.svelte`
 - Create: `src/components/RecombineResultDialog.svelte`
 - Create: `src/components/BatchSimDialog.svelte`
@@ -1330,6 +1398,7 @@ git commit -m "feat(ui): StatsPanel + recombine result + batch sim dialogs"
 ## Task 9: TopBar + main page wiring
 
 **Files:**
+
 - Create: `src/components/TopBar.svelte`
 - Modify: `src/routes/+page.svelte`
 
@@ -1355,7 +1424,7 @@ git commit -m "feat(ui): StatsPanel + recombine result + batch sim dialogs"
 
 <header class="bg-gray-900 border-b border-gray-800 px-6 py-3 flex items-center justify-between">
   <div class="font-semibold text-lg">
-    <span class="text-emerald-400">Resimbulator</span>
+    <span class="text-emerald-400">Resimbinator </span>
     <span class="text-xs text-gray-500 ml-2">PoE 3.25 Recombinator simulator</span>
   </div>
   <div class="flex gap-2">
@@ -1482,7 +1551,7 @@ git commit -m "feat(ui): StatsPanel + recombine result + batch sim dialogs"
 npm run dev &
 sleep 4
 curl -s http://localhost:5173/ -o /tmp/page.html
-grep -i 'resimbulator' /tmp/page.html
+grep -i 'Resimbinator ' /tmp/page.html
 grep -i 'paste an item' /tmp/page.html
 pkill -f 'vite dev'
 ```
@@ -1501,6 +1570,7 @@ git commit -m "feat(ui): TopBar + main page wiring (paste, recombine, share, res
 ## Task 10: Production build + deploy config
 
 **Files:**
+
 - Create: `vercel.json`
 - Modify: `README.md`
 
@@ -1517,7 +1587,7 @@ Expected: writes `build/` directory, no errors. The output is a static SPA.
 ```bash
 npm run preview &
 sleep 4
-curl -s http://localhost:4173/ | grep -i 'resimbulator'
+curl -s http://localhost:4173/ | grep -i 'Resimbinator '
 pkill -f 'vite preview'
 ```
 
@@ -1528,9 +1598,7 @@ pkill -f 'vite preview'
   "buildCommand": "npm run build",
   "outputDirectory": "build",
   "framework": null,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
 ```
 
@@ -1548,12 +1616,13 @@ The app is a static SPA — works on any static host: GitHub Pages, Netlify, Clo
 
 Add a "Run the app locally" section after Setup:
 
-```markdown
+````markdown
 ## Run the app locally
 
 ```bash
 npm run dev
 ```
+````
 
 Open `http://localhost:5173`. Paste two items from PoE (Ctrl+C in-game), check the desired mods, see the chance update live, and click Recombine.
 
@@ -1562,14 +1631,15 @@ Production build:
 ```bash
 npm run build && npm run preview
 ```
-```
+
+````
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add vercel.json README.md
 git commit -m "feat(ui): Vercel deploy config + README app run instructions"
-```
+````
 
 ---
 
@@ -1578,7 +1648,7 @@ git commit -m "feat(ui): Vercel deploy config + README app run instructions"
 - [ ] **Step 1: Full test suite**
 
 ```bash
-cd /home/nick/projects/personal/Resimbulator
+cd /home/nick/projects/personal/Resimbinator
 npm test
 npm run typecheck
 npm run lint
@@ -1594,6 +1664,7 @@ npm run dev
 ```
 
 Open `http://localhost:5173/` in a browser. Verify:
+
 1. Page loads with empty state
 2. Paste a real PoE item into item 1 — populates with mods + category chips
 3. Paste a second item — chance % shows

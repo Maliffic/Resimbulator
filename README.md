@@ -1,10 +1,11 @@
-# Resimbulator
+# Resimbinator
 
 A web-app simulator for Path of Exile 1's patch-3.25 (Settlers of Kalguur) Recombinator. Paste two items from the game, mark the mods you want, see the chance of getting them on a recombine. Roll once, or run 1,000 trials and see the histogram.
 
 ## What's in here
 
 **Engine (Plan 1):**
+
 - Pure-TypeScript recombinator math engine implementing the rules from the [community guide](./guide.txt) §5
 - Table 1 distribution sampler, eligibility filter (NNN / Fractured / Exclusive), single + batch simulator
 - Both Monte Carlo and exact-enumeration probability calculators
@@ -12,6 +13,7 @@ A web-app simulator for Path of Exile 1's patch-3.25 (Settlers of Kalguur) Recom
 - Cross-check property test: `probabilityExact` agrees with `probabilityMonteCarlo(30k trials)` within 1.5% on 30 random scenarios
 
 **Clipboard parser (Plan 2):**
+
 - Parses PoE's in-game Ctrl+C output into a structured `ParsedItem`
 - Handles items with and without "Show Modifier Type Hints" enabled
 - Detects rarity, item class, base, item level, quality, influence, corrupted, synthesised
@@ -19,12 +21,14 @@ A web-app simulator for Path of Exile 1's patch-3.25 (Settlers of Kalguur) Recom
 - Validated against 10 fixture variations
 
 **Mods + categorizer (Plan 3):**
+
 - Hand-curated base-items database (~40 popular Settlers crafting bases)
 - RePoE-derived mod database build script (`npm run update-mod-db`)
 - Categorizer: maps each `ParsedMod` to the correct `ModCategory` and applies per-mod requirements
 - Translator: `ParsedItem` → engine `Item`, ready for the simulator
 
 **SvelteKit UI (Plan 4):**
+
 - Three-panel layout (item 1 / live chance / item 2)
 - Paste from PoE → live category-chip rendering of mods
 - Toggle "desired" checkboxes → chance % updates instantly

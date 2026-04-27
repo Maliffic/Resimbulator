@@ -18,5 +18,7 @@ export function tokenize(input: string): string[][] {
     }
   }
   if (current.length > 0) sections.push(current);
-  return sections.filter((s) => s.some((l) => l.trim().length > 0));
+  return sections
+    .map((s) => s.filter((l) => l.trim().length > 0))
+    .filter((s) => s.length > 0);
 }

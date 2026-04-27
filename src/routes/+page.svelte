@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import {
-    createEmptyState, setItem, toggleDesired, reset, computeChance, allDesiredMods,
+    createEmptyState, setItem, toggleDesired, reset, computeChance, computeChanceByBase, allDesiredMods,
   } from '$lib/ui/state.js';
   import type { AppState } from '$lib/ui/state.js';
   import { getModDb } from '$lib/ui/mod-db-fetch.js';
@@ -51,7 +51,8 @@
     saveState({ item1: appState.item1, item2: appState.item2 }, window.localStorage);
   });
 
-  const chance = $derived(computeChance(appState));
+  const chanceByBase = $derived(computeChanceByBase(appState));
+  const chance = $derived(chanceByBase.weighted);
   const desiredCount = $derived(allDesiredMods(appState).length);
 
   function handleShare() {
@@ -89,6 +90,8 @@
         item1={appState.item1}
         item2={appState.item2}
         chance={chance}
+        chanceFromItem1={chanceByBase.fromItem1}
+        chanceFromItem2={chanceByBase.fromItem2}
         desiredCount={desiredCount}
         batchTrials={appState.settings.batchSimTrials}
       />

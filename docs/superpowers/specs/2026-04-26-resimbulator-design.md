@@ -1,4 +1,4 @@
-# Resimbulator — Design
+# Resimbinator — Design
 
 A web app that simulates Path of Exile 1's patch-3.25 (Settlers-of-Kalguur) Recombinator with full guide-accurate ruleset, automatic mod-category detection, paste-from-game support, and both probability calculation and random simulation.
 
@@ -31,16 +31,16 @@ Replaces an existing Excel-based calculator (`Copy of Recombinator Calculator V1
 
 ## Brainstorming decisions
 
-| Question | Decision | Reason |
-|---|---|---|
-| Calculator, simulator, or both? | Both — live %, single-roll simulate, batch simulate | Math is shared between calc and sim; once calc exists, sim is nearly free |
-| Mod-detail depth (what "NNN" meant) | Full guide §3 (Exclusive) and §4 (NNN) categorization | User explicitly called out NNN; guide makes clear these dominate odds |
-| Math depth | §5 full ruleset minus weighting | Aligns with categorization scope; weighting data isn't reliable yet |
-| Mod categorization mechanism | Full mod database (RePoE) | Zero-click categorization across the whole game data set |
-| Visual style | Modern web dashboard with category chips | Calculator/simulator UI is dashboard-shaped; PoE-skin would clash |
-| Audience | Deployed personal tool (not public community tool) | Lowest commitment, share-via-URL covers cross-device + sharing-with-friends |
-| Item interaction | Paste + edit (no library) | Editing is required to test guide strategies; library is a clean v2 split |
-| Tech stack | SvelteKit + TypeScript | Form/state-heavy single-page app, small bundle matters with mod DB |
+| Question                            | Decision                                              | Reason                                                                      |
+| ----------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------- |
+| Calculator, simulator, or both?     | Both — live %, single-roll simulate, batch simulate   | Math is shared between calc and sim; once calc exists, sim is nearly free   |
+| Mod-detail depth (what "NNN" meant) | Full guide §3 (Exclusive) and §4 (NNN) categorization | User explicitly called out NNN; guide makes clear these dominate odds       |
+| Math depth                          | §5 full ruleset minus weighting                       | Aligns with categorization scope; weighting data isn't reliable yet         |
+| Mod categorization mechanism        | Full mod database (RePoE)                             | Zero-click categorization across the whole game data set                    |
+| Visual style                        | Modern web dashboard with category chips              | Calculator/simulator UI is dashboard-shaped; PoE-skin would clash           |
+| Audience                            | Deployed personal tool (not public community tool)    | Lowest commitment, share-via-URL covers cross-device + sharing-with-friends |
+| Item interaction                    | Paste + edit (no library)                             | Editing is required to test guide strategies; library is a clean v2 split   |
+| Tech stack                          | SvelteKit + TypeScript                                | Form/state-heavy single-page app, small bundle matters with mod DB          |
 
 ## Architecture
 
@@ -110,14 +110,14 @@ Both `probability(items, desiredMods)` and `simulate(items, n)` share the same i
 
 2. **`pickModCount(totalInPool)`** — samples Table 1:
 
-   | Inputs | →0 | →1 | →2 | →3 |
-   |---|---|---|---|---|
-   | 1 | 41% | 59% | 0% | 0% |
-   | 2 | 0% | 67% | 33% | 0% |
-   | 3 | 0% | 39% | 52% | 10% |
-   | 4 | 0% | 11% | 59% | 31% |
-   | 5 | 0% | 0% | 43% | 57% |
-   | 6 | 0% | 0% | 28% | 72% |
+   | Inputs | →0  | →1  | →2  | →3  |
+   | ------ | --- | --- | --- | --- |
+   | 1      | 41% | 59% | 0%  | 0%  |
+   | 2      | 0%  | 67% | 33% | 0%  |
+   | 3      | 0%  | 39% | 52% | 10% |
+   | 4      | 0%  | 11% | 59% | 31% |
+   | 5      | 0%  | 0%  | 43% | 57% |
+   | 6      | 0%  | 0%  | 28% | 72% |
 
 3. **`fillOrder()`** — 50/50 prefix-first or suffix-first. Affects which pool exhausts the single exclusive-mod slot.
 
@@ -167,7 +167,7 @@ type ModDef = {
   id: string;
   name: string;
   affix: 'prefix' | 'suffix';
-  tier: number | null;     // null = untiered essence (per guide §3)
+  tier: number | null; // null = untiered essence (per guide §3)
   tags: string[];
   statRanges: StatRange[];
   statText: string[];
@@ -180,22 +180,22 @@ Output: `static/mod-db.json`, ~5–8 MB raw, ~1–1.5 MB gzipped. Bundle size bu
 
 ### Category derivation
 
-| Category | Rule |
-|---|---|
-| RegularExplicit | generation_type = `prefix`/`suffix`, no flags below |
-| ExclusiveCrafted | domain = `crafted` OR generation_type = `crafted` |
-| ExclusiveVeiled | has `veiled` tag |
-| ExclusiveEssence | from essence source AND tier is null |
-| ExclusiveBreach | domain = `breach` OR spawn_tag includes `breach` |
-| ExclusiveIncursion | domain = `incursion` |
-| ExclusiveBeastAspect | name matches `/^Aspect of/` |
-| ExclusiveDelve | domain = `delve` |
-| ExclusiveElevated | has elevated-influence flag |
-| NNN_Influenced | generation_type ∈ {shaper, elder, crusader, hunter, warlord, redeemer} |
-| NNN_Defence | has `armour`/`evasion`/`energy_shield` tags |
-| NNN_Attribute | spawn_weights gated on str/dex/int base (includes Suppress, life regen %, ES recharge rate, etc. — guide §4 lists Suppress as a subset of attribute-specific affixes) |
-| Fractured | set on mod *instance* by parser (per-item, not per-mod) |
-| Implicit | generation_type ∈ {unique, corrupted, enchant} OR clipboard `(implicit)` marker |
+| Category             | Rule                                                                                                                                                                  |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RegularExplicit      | generation_type = `prefix`/`suffix`, no flags below                                                                                                                   |
+| ExclusiveCrafted     | domain = `crafted` OR generation_type = `crafted`                                                                                                                     |
+| ExclusiveVeiled      | has `veiled` tag                                                                                                                                                      |
+| ExclusiveEssence     | from essence source AND tier is null                                                                                                                                  |
+| ExclusiveBreach      | domain = `breach` OR spawn_tag includes `breach`                                                                                                                      |
+| ExclusiveIncursion   | domain = `incursion`                                                                                                                                                  |
+| ExclusiveBeastAspect | name matches `/^Aspect of/`                                                                                                                                           |
+| ExclusiveDelve       | domain = `delve`                                                                                                                                                      |
+| ExclusiveElevated    | has elevated-influence flag                                                                                                                                           |
+| NNN_Influenced       | generation_type ∈ {shaper, elder, crusader, hunter, warlord, redeemer}                                                                                                |
+| NNN_Defence          | has `armour`/`evasion`/`energy_shield` tags                                                                                                                           |
+| NNN_Attribute        | spawn_weights gated on str/dex/int base (includes Suppress, life regen %, ES recharge rate, etc. — guide §4 lists Suppress as a subset of attribute-specific affixes) |
+| Fractured            | set on mod _instance_ by parser (per-item, not per-mod)                                                                                                               |
+| Implicit             | generation_type ∈ {unique, corrupted, enchant} OR clipboard `(implicit)` marker                                                                                       |
 
 ### Lookup strategy
 
@@ -206,7 +206,7 @@ Two-stage match from parser to database:
 
 ### Contextual NNN
 
-Some NNN flags are evaluated *per simulation trial*, not statically — a Strength-base affix is NNN only when the picked base is Dex/Int. The mod database stores the requirements; the simulator's `eligibility(mod, chosenBase)` check applies them.
+Some NNN flags are evaluated _per simulation trial_, not statically — a Strength-base affix is NNN only when the picked base is Dex/Int. The mod database stores the requirements; the simulator's `eligibility(mod, chosenBase)` check applies them.
 
 ### Per-league update
 
@@ -296,7 +296,7 @@ type ParsedMod = {
 
 ### Robustness
 
-- **No type hints** — stat-line regex matches against the database. Yellow non-blocking banner suggests enabling PoE's *Show Modifier Type Hints* setting.
+- **No type hints** — stat-line regex matches against the database. Yellow non-blocking banner suggests enabling PoE's _Show Modifier Type Hints_ setting.
 - **Unknown lines** — kept as raw; categorizer offers manual-tag dropdown.
 - **Non-recombinable items** — Unique, corrupted, and synthesised items parse successfully but display a warning ("can't be recombined in-game; sim runs anyway for hypotheticals").
 - **Other handled cases** — Magic items (1–2 mods), Normal items (no mods), hybrid bases, multiple implicits.
@@ -313,7 +313,7 @@ Single page, three regions, modals for one-off interactions. No routing.
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│  Resimbulator        Share scenario  Reset  Settings  About   │
+│  Resimbinator         Share scenario  Reset  Settings  About   │
 ├──────────────────────┬─────────────────────┬──────────────────┤
 │   ITEM 1             │     CHANCE          │   ITEM 2         │
 │   ┌──────────────┐   │   ┌─────────────┐   │  ┌──────────────┐│
@@ -389,7 +389,7 @@ BatchSimChart.svelte    (hand-rolled SVG, no chart lib needed for 4-bar histogra
 
 ### localStorage — working state
 
-Auto-saves on every change. Key: `resimbulator:state:v1`. Versioned schema with sequential migrators (`v1→v2`, etc.).
+Auto-saves on every change. Key: `Resimbinator :state:v1`. Versioned schema with sequential migrators (`v1→v2`, etc.).
 
 ```ts
 {
@@ -431,14 +431,14 @@ If a URL exceeds ~2000 chars, share dialog falls back to "Copy as JSON" or downl
 
 ### Test layers
 
-| Layer | What | Where |
-|---|---|---|
-| Unit | Engine — Table 1 sampler, eligibility, exclusive resolution, base/count/order picks, special case | `lib/recombinator/*.test.ts` |
-| Unit | Parser on ~30 real clipboard fixtures (every shape) | `lib/poe-clipboard/*.test.ts` |
-| Unit | Categorizer — every category, contextual NNN per base | `lib/mods/*.test.ts` |
-| Integration | Guide worked examples: §6 grasping mail (50%), §7 wand (~35%), §8 cases — exact values | `lib/recombinator/guide-examples.test.ts` |
-| Integration | Property test: `probability()` vs Monte Carlo `simulate(100k)` within ±0.5% on 50 random scenarios | `lib/recombinator/cross-check.test.ts` |
-| End-to-end | Paste → mark desired → see chance → Recombine → result. Share URL roundtrip. localStorage persistence. | `e2e/*.spec.ts` |
+| Layer       | What                                                                                                   | Where                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------- |
+| Unit        | Engine — Table 1 sampler, eligibility, exclusive resolution, base/count/order picks, special case      | `lib/recombinator/*.test.ts`              |
+| Unit        | Parser on ~30 real clipboard fixtures (every shape)                                                    | `lib/poe-clipboard/*.test.ts`             |
+| Unit        | Categorizer — every category, contextual NNN per base                                                  | `lib/mods/*.test.ts`                      |
+| Integration | Guide worked examples: §6 grasping mail (50%), §7 wand (~35%), §8 cases — exact values                 | `lib/recombinator/guide-examples.test.ts` |
+| Integration | Property test: `probability()` vs Monte Carlo `simulate(100k)` within ±0.5% on 50 random scenarios     | `lib/recombinator/cross-check.test.ts`    |
+| End-to-end  | Paste → mark desired → see chance → Recombine → result. Share URL roundtrip. localStorage persistence. | `e2e/*.spec.ts`                           |
 
 Tooling: Vitest (unit + integration), Playwright (e2e).
 

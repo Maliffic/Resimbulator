@@ -52,6 +52,8 @@ export type BaseDef = {
 export type ModDb = {
   /** Lookup by mod name + tier + affix. Most common path when type hints are present. */
   byNameTierAffix: Map<string, ModDef>;
+  /** Fallback when tier doesn't match (clipboard tiers are per-item-class). */
+  byNameAffix: Map<string, ModDef[]>;
   /** Lookup by id. */
   byId: Map<string, ModDef>;
   /** Lookup by stat-text template (regex-stringified) for type-hints-off fallback. */

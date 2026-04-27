@@ -10,6 +10,13 @@ const HINT_FLAGS: { keyword: string; flag: ModFlag }[] = [
   { keyword: 'Implicit', flag: 'implicit' },
 ];
 
+// Lines that appear at the end of a mod block (no `--------` separator) but represent item-level
+// flags rather than mod stat-text. They should terminate the current mod's statLines collection.
+function isTrailingItemFlag(line: string): boolean {
+  const t = line.trim();
+  return /\bItem$/.test(t) || t === 'Corrupted' || t === 'Mirrored' || t === 'Split';
+}
+
 type Hint = NonNullable<ParsedMod['hint']> & { affix: ParsedMod['affix'] };
 
 function parseHint(line: string): Hint | undefined {
@@ -59,11 +66,20 @@ export function parseModSection(section: string[]): ParsedMod[] {
       i++;
       continue;
     }
+    if (isTrailingItemFlag(line)) {
+      // Item-level flags appended without a separator — skip, they're not mod stat text.
+      i++;
+      continue;
+    }
     const hint = parseHint(line);
     if (hint) {
       i++;
       const statLines: string[] = [];
-      while (i < section.length && !HINT_LINE.test(section[i]!)) {
+      while (
+        i < section.length
+        && !HINT_LINE.test(section[i]!)
+        && !isTrailingItemFlag(section[i]!)
+      ) {
         const next = section[i]!;
         if (next.trim() !== '') statLines.push(next);
         i++;
@@ -71,8 +87,11 @@ export function parseModSection(section: string[]): ParsedMod[] {
       const { affix, name, tier, tags, flags } = hint;
       mods.push({ affix, hint: { name, tier, tags, flags }, statLines });
     } else {
+      // Inline marker fallback: hints OFF or single-line annotated mod.
+      // Implicits and enchants both stick with the base (don't enter the prefix/suffix pool),
+      // so route enchants through the implicit affix.
       const inline = line;
-      const isImplicit = /\(implicit\)/i.test(inline);
+      const isImplicit = /\((implicit|enchant)\)/i.test(inline);
       mods.push({
         affix: isImplicit ? 'implicit' : 'unknown',
         statLines: [inline],

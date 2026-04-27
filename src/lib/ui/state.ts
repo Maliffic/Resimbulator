@@ -4,7 +4,7 @@
 // Svelte component that owns the state; these helpers operate on a snapshot.
 
 import type { Item } from '$lib/recombinator/index.js';
-import { probabilityExact } from '$lib/recombinator/index.js';
+import { probabilityExact, probabilityExactByBase } from '$lib/recombinator/index.js';
 
 export type Settings = {
   batchSimTrials: number;
@@ -60,4 +60,11 @@ export function computeChance(state: AppState): number {
   const desired = allDesiredMods(state);
   if (desired.length === 0) return 1;
   return probabilityExact(state.item1, state.item2, desired);
+}
+
+export function computeChanceByBase(state: AppState): { fromItem1: number; fromItem2: number; weighted: number } {
+  if (!state.item1 || !state.item2) return { fromItem1: 0, fromItem2: 0, weighted: 0 };
+  const desired = allDesiredMods(state);
+  if (desired.length === 0) return { fromItem1: 1, fromItem2: 1, weighted: 1 };
+  return probabilityExactByBase(state.item1, state.item2, desired);
 }

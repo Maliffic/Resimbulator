@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html, body {
+  background: #0a0805;
+  color: #c8c8c8;
+}
+
+body {
+  background-image: radial-gradient(ellipse at center top, #15110b 0%, #0a0805 60%);
+  min-height: 100vh;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: #3a3127;
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #5a5048;
+}

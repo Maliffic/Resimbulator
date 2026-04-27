@@ -50,7 +50,7 @@ describe('persist', () => {
   });
 
   it('returns empty state on corrupt JSON', () => {
-    storage.setItem('resimbulator:state:v1', 'not json');
+    storage.setItem('Resimbinator :state:v1', 'not json');
     const loaded = loadState(storage);
     expect(loaded.item1).toBeNull();
   });

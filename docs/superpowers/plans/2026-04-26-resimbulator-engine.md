@@ -1,16 +1,17 @@
-# Resimbulator Engine Implementation Plan (Plan 1 of 4)
+# Resimbinator Engine Implementation Plan (Plan 1 of 4)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the pure-TypeScript recombinator math engine — Table 1 distribution sampler, mod-eligibility filter, exclusive resolution, fill-order, special-case handling, single+batch simulator, and exact-enumeration probability calculator — validated against worked examples from `guide.txt`. No UI, no clipboard parser, no mod database — just the math layer wrapped in a small CLI.
 
-**Architecture:** A self-contained `lib/recombinator/` package with abstract types (`Item`, `Mod`, `ModCategory`) deliberately decoupled from RePoE-specific data. Pseudo-random generation is pluggable via a `Rng` interface so all tests use a seeded PRNG and run deterministically. A tiny CLI (`resimbulator-engine`) takes a JSON scenario on stdin and prints probability + sample rolls to stdout, giving us a usable artifact and an integration-test surface before any UI exists.
+**Architecture:** A self-contained `lib/recombinator/` package with abstract types (`Item`, `Mod`, `ModCategory`) deliberately decoupled from RePoE-specific data. Pseudo-random generation is pluggable via a `Rng` interface so all tests use a seeded PRNG and run deterministically. A tiny CLI (`Resimbinator -engine`) takes a JSON scenario on stdin and prints probability + sample rolls to stdout, giving us a usable artifact and an integration-test surface before any UI exists.
 
 **Tech Stack:** TypeScript 5.x, Node 20+, Vitest, ESLint, Prettier. SvelteKit/Tailwind/Vercel are out of scope for this plan — added in Plan 4.
 
-**Spec reference:** `docs/superpowers/specs/2026-04-26-resimbulator-design.md` (sections "Architecture → Layer 1: Engine" and "Engine — recombinator simulator & probability").
+**Spec reference:** `docs/superpowers/specs/2026-04-26-Resimbinator -design.md` (sections "Architecture → Layer 1: Engine" and "Engine — recombinator simulator & probability").
 
 **Out of scope for Plan 1:**
+
 - PoE clipboard parser (Plan 2)
 - Mod database fetch + categorizer (Plan 3)
 - UI, state store, deploy (Plan 4)
@@ -20,6 +21,7 @@
 ## File Structure
 
 Created in this plan:
+
 ```
 package.json
 tsconfig.json
@@ -44,7 +46,7 @@ src/
       index.ts          # public API surface
 
   cli/
-    main.ts             # `resimbulator-engine` CLI
+    main.ts             # `Resimbinator -engine` CLI
 
 tests/
   recombinator/
@@ -77,6 +79,7 @@ Each file has one responsibility; no file exceeds ~250 lines. The `Rng` abstract
 ## Task 1: Initialize project + tooling
 
 **Files:**
+
 - Create: `package.json`
 - Create: `tsconfig.json`
 - Create: `.eslintrc.cjs`
@@ -87,7 +90,7 @@ Each file has one responsibility; no file exceeds ~250 lines. The `Rng` abstract
 - [ ] **Step 1: Initialize git and the npm package**
 
 ```bash
-cd /home/nick/projects/personal/Resimbulator
+cd /home/nick/projects/personal/Resimbinator
 git init
 npm init -y
 ```
@@ -209,6 +212,7 @@ git commit -m "chore: initialize TypeScript + Vitest + ESLint toolchain"
 ## Task 2: Core types
 
 **Files:**
+
 - Create: `src/lib/recombinator/types.ts`
 - Test: `tests/recombinator/types.test.ts`
 
@@ -217,7 +221,13 @@ git commit -m "chore: initialize TypeScript + Vitest + ESLint toolchain"
 ```ts
 // tests/recombinator/types.test.ts
 import { describe, it, expect, expectTypeOf } from 'vitest';
-import type { Item, Mod, ModCategory, BaseContext, RecombineInput } from '../../src/lib/recombinator/types.js';
+import type {
+  Item,
+  Mod,
+  ModCategory,
+  BaseContext,
+  RecombineInput,
+} from '../../src/lib/recombinator/types.js';
 
 describe('types: Mod', () => {
   it('accepts a regular explicit mod', () => {
@@ -400,6 +410,7 @@ git commit -m "feat(engine): core types (Item, Mod, ModCategory, BaseContext)"
 ## Task 3: Seedable Rng
 
 **Files:**
+
 - Create: `src/lib/recombinator/rng.ts`
 - Test: `tests/recombinator/rng.test.ts`
 
@@ -526,6 +537,7 @@ git commit -m "feat(engine): seedable Mulberry32 Rng for deterministic sims"
 ## Task 4: Table 1 distribution
 
 **Files:**
+
 - Create: `src/lib/recombinator/table1.ts`
 - Test: `tests/recombinator/table1.test.ts`
 
@@ -648,6 +660,7 @@ git commit -m "feat(engine): Table 1 distribution + sampler (guide §5)"
 ## Task 5: Item-level formula
 
 **Files:**
+
 - Create: `src/lib/recombinator/ilevel.ts`
 - Test: `tests/recombinator/ilevel.test.ts`
 
@@ -724,6 +737,7 @@ git commit -m "feat(engine): item-level formula (guide §2)"
 ## Task 6: Eligibility filter
 
 **Files:**
+
 - Create: `src/lib/recombinator/eligibility.ts`
 - Test: `tests/recombinator/eligibility.test.ts`
 
@@ -755,15 +769,52 @@ const baseStrInt: BaseContext = {
 
 const baseInfluenced: BaseContext = { ...baseStr, influence: 'warlord' };
 
-const regular: Mod = { id: 'a', affix: 'prefix', category: 'RegularExplicit', name: 'X', tier: 1, statText: '' };
+const regular: Mod = {
+  id: 'a',
+  affix: 'prefix',
+  category: 'RegularExplicit',
+  name: 'X',
+  tier: 1,
+  statText: '',
+};
 const fracturedItem1: Mod = { ...regular, id: 'b', category: 'Fractured', hostItemId: 'item_1' };
 const fracturedItem2: Mod = { ...regular, id: 'c', category: 'Fractured', hostItemId: 'item_2' };
-const influencedWarlord: Mod = { ...regular, id: 'd', category: 'NNN_Influenced', requiresInfluence: 'warlord' };
-const influencedHunter: Mod = { ...regular, id: 'e', category: 'NNN_Influenced', requiresInfluence: 'hunter' };
-const armourMod: Mod = { ...regular, id: 'f', category: 'NNN_Defence', requiresDefenceTag: 'armour' };
-const esMod: Mod = { ...regular, id: 'g', category: 'NNN_Defence', requiresDefenceTag: 'energy_shield' };
-const strLifeRegen: Mod = { ...regular, id: 'h', category: 'NNN_Attribute', allowedAttributeBases: ['str', 'str_dex', 'str_int'] };
-const intMod: Mod = { ...regular, id: 'i', category: 'NNN_Attribute', allowedAttributeBases: ['int', 'str_int', 'dex_int'] };
+const influencedWarlord: Mod = {
+  ...regular,
+  id: 'd',
+  category: 'NNN_Influenced',
+  requiresInfluence: 'warlord',
+};
+const influencedHunter: Mod = {
+  ...regular,
+  id: 'e',
+  category: 'NNN_Influenced',
+  requiresInfluence: 'hunter',
+};
+const armourMod: Mod = {
+  ...regular,
+  id: 'f',
+  category: 'NNN_Defence',
+  requiresDefenceTag: 'armour',
+};
+const esMod: Mod = {
+  ...regular,
+  id: 'g',
+  category: 'NNN_Defence',
+  requiresDefenceTag: 'energy_shield',
+};
+const strLifeRegen: Mod = {
+  ...regular,
+  id: 'h',
+  category: 'NNN_Attribute',
+  allowedAttributeBases: ['str', 'str_dex', 'str_int'],
+};
+const intMod: Mod = {
+  ...regular,
+  id: 'i',
+  category: 'NNN_Attribute',
+  allowedAttributeBases: ['int', 'str_int', 'dex_int'],
+};
 const exclusive: Mod = { ...regular, id: 'j', category: 'ExclusiveBreach' };
 
 describe('isEligible', () => {
@@ -848,7 +899,9 @@ export function isEligible(mod: Mod, base: BaseContext, exclusiveAlreadyPicked: 
     case 'NNN_Influenced':
       return mod.requiresInfluence !== undefined && base.influence === mod.requiresInfluence;
     case 'NNN_Defence':
-      return mod.requiresDefenceTag !== undefined && base.defenceTags.includes(mod.requiresDefenceTag);
+      return (
+        mod.requiresDefenceTag !== undefined && base.defenceTags.includes(mod.requiresDefenceTag)
+      );
     case 'NNN_Attribute':
       return mod.allowedAttributeBases?.includes(base.attributeBase) ?? false;
     default:
@@ -877,6 +930,7 @@ git commit -m "feat(engine): mod eligibility (NNN/Fractured/Exclusive) per guide
 ## Task 7: pickBase, pickModCount, fillOrder
 
 **Files:**
+
 - Create: `src/lib/recombinator/pick.ts`
 - Test: `tests/recombinator/pick.test.ts`
 
@@ -904,7 +958,13 @@ const item1: Item = {
   suffixes: [],
 };
 
-const item2: Item = { ...item1, id: 'item_2', base: 'Astral Plate', itemLevel: 86, attributeBase: 'str' };
+const item2: Item = {
+  ...item1,
+  id: 'item_2',
+  base: 'Astral Plate',
+  itemLevel: 86,
+  attributeBase: 'str',
+};
 
 describe('pickBase', () => {
   it('picks each item ~50% over many trials', () => {
@@ -1007,9 +1067,7 @@ export function pickEligibleMods(
   let exclusiveSoFar = exclusiveAlreadyPicked;
   // Eligibility is recomputed each step because picking an exclusive locks others out.
   while (picked.length < count) {
-    const eligible = pool.filter(
-      (m) => !picked.includes(m) && isEligible(m, base, exclusiveSoFar),
-    );
+    const eligible = pool.filter((m) => !picked.includes(m) && isEligible(m, base, exclusiveSoFar));
     if (eligible.length === 0) break; // can't reach target count; guide notes this is allowed
     const chosen = rng.pickOne(eligible);
     picked.push(chosen);
@@ -1036,16 +1094,31 @@ import { pickEligibleMods } from '../../src/lib/recombinator/pick.js';
 import type { Mod } from '../../src/lib/recombinator/types.js';
 
 const reg = (id: string): Mod => ({
-  id, affix: 'prefix', category: 'RegularExplicit', name: id, tier: 1, statText: '',
+  id,
+  affix: 'prefix',
+  category: 'RegularExplicit',
+  name: id,
+  tier: 1,
+  statText: '',
 });
 const exc = (id: string): Mod => ({
-  id, affix: 'prefix', category: 'ExclusiveBreach', name: id, tier: 1, statText: '',
+  id,
+  affix: 'prefix',
+  category: 'ExclusiveBreach',
+  name: id,
+  tier: 1,
+  statText: '',
 });
 
 describe('pickEligibleMods', () => {
   const ctx = {
-    base: 'X', itemClass: 'Y', attributeBase: 'str' as const, defenceTags: ['armour' as const],
-    influence: undefined, itemLevel: 86, hostItemId: 'item_1',
+    base: 'X',
+    itemClass: 'Y',
+    attributeBase: 'str' as const,
+    defenceTags: ['armour' as const],
+    influence: undefined,
+    itemLevel: 86,
+    hostItemId: 'item_1',
   };
 
   it('picks the requested count when enough eligible mods exist', () => {
@@ -1093,6 +1166,7 @@ git commit -m "feat(engine): pickBase, pickFillOrder, pickEligibleMods"
 ## Task 8: Special case 1p/0s + 0p/1s
 
 **Files:**
+
 - Create: `src/lib/recombinator/special-cases.ts`
 - Test: `tests/recombinator/special-cases.test.ts`
 
@@ -1101,20 +1175,39 @@ git commit -m "feat(engine): pickBase, pickFillOrder, pickEligibleMods"
 ```ts
 // tests/recombinator/special-cases.test.ts
 import { describe, it, expect } from 'vitest';
-import { isOneOneSpecialCase, sampleOneOneOutcome } from '../../src/lib/recombinator/special-cases.js';
+import {
+  isOneOneSpecialCase,
+  sampleOneOneOutcome,
+} from '../../src/lib/recombinator/special-cases.js';
 import { SeededRng } from '../../src/lib/recombinator/rng.js';
 import type { Item } from '../../src/lib/recombinator/types.js';
 
 const blank = (id: string, prefixes: number, suffixes: number): Item => ({
-  id, base: 'X', itemClass: 'Y', itemLevel: 86,
-  attributeBase: 'str', defenceTags: ['armour'], influence: undefined,
-  corrupted: false, synthesised: false,
+  id,
+  base: 'X',
+  itemClass: 'Y',
+  itemLevel: 86,
+  attributeBase: 'str',
+  defenceTags: ['armour'],
+  influence: undefined,
+  corrupted: false,
+  synthesised: false,
   implicits: [],
   prefixes: Array.from({ length: prefixes }, (_, i) => ({
-    id: `${id}_p${i}`, affix: 'prefix', category: 'RegularExplicit', name: 'P', tier: 1, statText: '',
+    id: `${id}_p${i}`,
+    affix: 'prefix',
+    category: 'RegularExplicit',
+    name: 'P',
+    tier: 1,
+    statText: '',
   })),
   suffixes: Array.from({ length: suffixes }, (_, i) => ({
-    id: `${id}_s${i}`, affix: 'suffix', category: 'RegularExplicit', name: 'S', tier: 1, statText: '',
+    id: `${id}_s${i}`,
+    affix: 'suffix',
+    category: 'RegularExplicit',
+    name: 'S',
+    tier: 1,
+    statText: '',
   })),
 });
 
@@ -1197,6 +1290,7 @@ git commit -m "feat(engine): 1p/0s + 0p/1s special case (guide §5)"
 ## Task 9: simulate (single trial + batch)
 
 **Files:**
+
 - Create: `src/lib/recombinator/simulate.ts`
 - Test: `tests/recombinator/simulate.test.ts`
 
@@ -1210,21 +1304,42 @@ import { SeededRng } from '../../src/lib/recombinator/rng.js';
 import type { Item, Mod } from '../../src/lib/recombinator/types.js';
 
 const reg = (id: string, affix: 'prefix' | 'suffix'): Mod => ({
-  id, affix, category: 'RegularExplicit', name: id, tier: 1, statText: '',
+  id,
+  affix,
+  category: 'RegularExplicit',
+  name: id,
+  tier: 1,
+  statText: '',
 });
 
 const baseItem = (id: string, prefixes: Mod[], suffixes: Mod[]): Item => ({
-  id, base: 'Sacrificial Garb', itemClass: 'Body Armours', itemLevel: 86,
-  attributeBase: 'str_int', defenceTags: ['armour', 'energy_shield'],
-  influence: undefined, corrupted: false, synthesised: false,
-  implicits: [], prefixes, suffixes,
+  id,
+  base: 'Sacrificial Garb',
+  itemClass: 'Body Armours',
+  itemLevel: 86,
+  attributeBase: 'str_int',
+  defenceTags: ['armour', 'energy_shield'],
+  influence: undefined,
+  corrupted: false,
+  synthesised: false,
+  implicits: [],
+  prefixes,
+  suffixes,
 });
 
 describe('simulateOnce', () => {
   it('returns a result with prefixes from the prefix pool and suffixes from the suffix pool', () => {
     const rng = new SeededRng(1);
-    const item1 = baseItem('item_1', [reg('p1', 'prefix'), reg('p2', 'prefix')], [reg('s1', 'suffix')]);
-    const item2 = baseItem('item_2', [reg('p3', 'prefix')], [reg('s2', 'suffix'), reg('s3', 'suffix')]);
+    const item1 = baseItem(
+      'item_1',
+      [reg('p1', 'prefix'), reg('p2', 'prefix')],
+      [reg('s1', 'suffix')],
+    );
+    const item2 = baseItem(
+      'item_2',
+      [reg('p3', 'prefix')],
+      [reg('s2', 'suffix'), reg('s3', 'suffix')],
+    );
     const r = simulateOnce(item1, item2, rng);
     for (const p of r.prefixes) expect(p.affix).toBe('prefix');
     for (const s of r.suffixes) expect(s.affix).toBe('suffix');
@@ -1384,9 +1499,10 @@ git commit -m "feat(engine): simulateOnce + simulateBatch with §5 ruleset"
 
 ## Task 10: Probability calculator (Monte Carlo first)
 
-We start with the Monte Carlo `probability()` because it's a thin wrapper over `simulateBatch()` and lets us validate guide examples *now*. Exact enumeration is added in Task 11 once we have a known-good baseline to cross-check against.
+We start with the Monte Carlo `probability()` because it's a thin wrapper over `simulateBatch()` and lets us validate guide examples _now_. Exact enumeration is added in Task 11 once we have a known-good baseline to cross-check against.
 
 **Files:**
+
 - Create: `src/lib/recombinator/probability.ts`
 - Test: `tests/recombinator/probability.test.ts`
 
@@ -1400,17 +1516,36 @@ import { SeededRng } from '../../src/lib/recombinator/rng.js';
 import type { Item, Mod } from '../../src/lib/recombinator/types.js';
 
 const desired = (id: string, affix: 'prefix' | 'suffix'): Mod => ({
-  id, affix, category: 'RegularExplicit', name: id, tier: 1, statText: '', desired: true,
+  id,
+  affix,
+  category: 'RegularExplicit',
+  name: id,
+  tier: 1,
+  statText: '',
+  desired: true,
 });
 const filler = (id: string, affix: 'prefix' | 'suffix'): Mod => ({
-  id, affix, category: 'RegularExplicit', name: id, tier: 1, statText: '',
+  id,
+  affix,
+  category: 'RegularExplicit',
+  name: id,
+  tier: 1,
+  statText: '',
 });
 
 const baseItem = (id: string, p: Mod[], s: Mod[]): Item => ({
-  id, base: 'Sacrificial Garb', itemClass: 'Body Armours', itemLevel: 86,
-  attributeBase: 'str_int', defenceTags: ['armour', 'energy_shield'],
-  influence: undefined, corrupted: false, synthesised: false,
-  implicits: [], prefixes: p, suffixes: s,
+  id,
+  base: 'Sacrificial Garb',
+  itemClass: 'Body Armours',
+  itemLevel: 86,
+  attributeBase: 'str_int',
+  defenceTags: ['armour', 'energy_shield'],
+  influence: undefined,
+  corrupted: false,
+  synthesised: false,
+  implicits: [],
+  prefixes: p,
+  suffixes: s,
 });
 
 describe('allDesiredHit', () => {
@@ -1502,6 +1637,7 @@ git commit -m "feat(engine): probabilityMonteCarlo + allDesiredHit"
 We add exact enumeration as `probabilityExact()` and cross-check against Monte Carlo. The closed form enumerates: which base wins (2 cases), prefix count outcome (4 cases), suffix count outcome (4 cases), fill order (2 cases), and combinatorial mod selection (varies). For inputs the user will paste (≤6+6 mods), this is at most a few hundred terminal cases — well within reach.
 
 **Files:**
+
 - Modify: `src/lib/recombinator/probability.ts`
 - Test: `tests/recombinator/probability.test.ts`
 
@@ -1521,7 +1657,11 @@ describe('probabilityExact', () => {
   });
 
   it('matches Monte Carlo within ±0.5% on a 3p/2s scenario', () => {
-    const item1 = baseItem('a', [desired('p1', 'prefix'), filler('p2', 'prefix')], [filler('s1', 'suffix')]);
+    const item1 = baseItem(
+      'a',
+      [desired('p1', 'prefix'), filler('p2', 'prefix')],
+      [filler('s1', 'suffix')],
+    );
     const item2 = baseItem('b', [filler('p3', 'prefix')], [desired('s2', 'suffix')]);
     const desiredMods = [desired('p1', 'prefix'), desired('s2', 'suffix')];
     const exact = probabilityExact(item1, item2, desiredMods);
@@ -1628,8 +1768,10 @@ function probConditional(
   // Recursive uniform-pick enumerator. Returns probability of "all desired present in picked"
   // given we still need to pick (remainingP, remainingS) more mods.
   type State = {
-    pickedP: string[]; pickedS: string[];
-    remainingP: number; remainingS: number;
+    pickedP: string[];
+    pickedS: string[];
+    remainingP: number;
+    remainingS: number;
     exclusiveLocked: boolean;
     phase: 'prefix' | 'suffix';
   };
@@ -1652,7 +1794,9 @@ function probConditional(
 
     const pool = pullPrefix ? prefixPool : suffixPool;
     const already = pullPrefix ? s.pickedP : s.pickedS;
-    const eligible = pool.filter((m) => !already.includes(m.id) && isEligible(m, base, s.exclusiveLocked));
+    const eligible = pool.filter(
+      (m) => !already.includes(m.id) && isEligible(m, base, s.exclusiveLocked),
+    );
     if (eligible.length === 0) {
       // Can't fulfill this slot — guide notes constraints can be violated; treat as failure
       // since the desired-mod test will detect a missing pick.
@@ -1679,8 +1823,10 @@ function probConditional(
   }
 
   return step({
-    pickedP: [], pickedS: [],
-    remainingP: nP, remainingS: nS,
+    pickedP: [],
+    pickedS: [],
+    remainingP: nP,
+    remainingS: nS,
     exclusiveLocked: false,
     phase: order === 'prefix-first' ? 'prefix' : 'suffix',
   });
@@ -1704,12 +1850,16 @@ function probExactOneOne(item1: Item, item2: Item, desired: Mod[]): number {
     const allP = [...item1.prefixes, ...item2.prefixes];
     const allS = [...item1.suffixes, ...item2.suffixes];
     // 1p/0s, 0p/1s, 1p/1s each 1/3.
-    total += baseProb * (1 / 3) * probConditional(allP, allS, 1, 0, baseCtx, 'prefix-first', desired);
-    total += baseProb * (1 / 3) * probConditional(allP, allS, 0, 1, baseCtx, 'suffix-first', desired);
-    total += baseProb * (1 / 3) * 0.5 * (
-      probConditional(allP, allS, 1, 1, baseCtx, 'prefix-first', desired) +
-      probConditional(allP, allS, 1, 1, baseCtx, 'suffix-first', desired)
-    );
+    total +=
+      baseProb * (1 / 3) * probConditional(allP, allS, 1, 0, baseCtx, 'prefix-first', desired);
+    total +=
+      baseProb * (1 / 3) * probConditional(allP, allS, 0, 1, baseCtx, 'suffix-first', desired);
+    total +=
+      baseProb *
+      (1 / 3) *
+      0.5 *
+      (probConditional(allP, allS, 1, 1, baseCtx, 'prefix-first', desired) +
+        probConditional(allP, allS, 1, 1, baseCtx, 'suffix-first', desired));
   }
   return total;
 }
@@ -1735,6 +1885,7 @@ git commit -m "feat(engine): probabilityExact via outcome enumeration"
 ## Task 12: Public engine API surface
 
 **Files:**
+
 - Create: `src/lib/recombinator/index.ts`
 - Test: `tests/recombinator/index.test.ts`
 
@@ -1770,8 +1921,16 @@ Expected: FAIL with `Cannot find module`.
 ```ts
 // src/lib/recombinator/index.ts
 export type {
-  Affix, ModCategory, AttributeBase, DefenceTag, Influence,
-  Mod, Item, BaseContext, RecombineInput, RecombineResult,
+  Affix,
+  ModCategory,
+  AttributeBase,
+  DefenceTag,
+  Influence,
+  Mod,
+  Item,
+  BaseContext,
+  RecombineInput,
+  RecombineResult,
 } from './types.js';
 export { SeededRng } from './rng.js';
 export type { Rng } from './rng.js';
@@ -1803,12 +1962,13 @@ git commit -m "feat(engine): public API surface (lib/recombinator/index.ts)"
 ## Task 13: Guide §6 worked example — grasping mail breach transfer
 
 **Files:**
+
 - Create: `tests/fixtures/guide-grasping-mail.json`
 - Create: `tests/recombinator/guide-examples.test.ts`
 
 - [ ] **Step 1: Build the fixture**
 
-Per guide §6: a grasping mail body armour with a single Breach prefix, plus a crafted (Influenced) prefix added via influenced exalted orb, recombined with a 0p/*s uninfluenced item. Expected transfer rate = 50%.
+Per guide §6: a grasping mail body armour with a single Breach prefix, plus a crafted (Influenced) prefix added via influenced exalted orb, recombined with a 0p/\*s uninfluenced item. Expected transfer rate = 50%.
 
 Modeled here as: `item1 = { 1 ExclusiveBreach prefix on a Warlord-influenced base, 1 NNN_Influenced prefix }` and `item2 = { uninfluenced base, 1 regular suffix as filler }`. Desired = the Breach prefix.
 
@@ -1827,8 +1987,23 @@ Modeled here as: `item1 = { 1 ExclusiveBreach prefix on a Warlord-influenced bas
     "synthesised": false,
     "implicits": [],
     "prefixes": [
-      { "id": "breach_armour_overcap_fire", "affix": "prefix", "category": "ExclusiveBreach", "name": "Breach", "tier": 1, "statText": "+# armour overcapped fire" },
-      { "id": "warlord_influence_pref", "affix": "prefix", "category": "NNN_Influenced", "name": "Warlord Pref", "tier": 1, "statText": "warlord mod", "requiresInfluence": "warlord" }
+      {
+        "id": "breach_armour_overcap_fire",
+        "affix": "prefix",
+        "category": "ExclusiveBreach",
+        "name": "Breach",
+        "tier": 1,
+        "statText": "+# armour overcapped fire"
+      },
+      {
+        "id": "warlord_influence_pref",
+        "affix": "prefix",
+        "category": "NNN_Influenced",
+        "name": "Warlord Pref",
+        "tier": 1,
+        "statText": "warlord mod",
+        "requiresInfluence": "warlord"
+      }
     ],
     "suffixes": []
   },
@@ -1845,7 +2020,14 @@ Modeled here as: `item1 = { 1 ExclusiveBreach prefix on a Warlord-influenced bas
     "implicits": [],
     "prefixes": [],
     "suffixes": [
-      { "id": "filler_suff", "affix": "suffix", "category": "RegularExplicit", "name": "Filler", "tier": 1, "statText": "filler" }
+      {
+        "id": "filler_suff",
+        "affix": "suffix",
+        "category": "RegularExplicit",
+        "name": "Filler",
+        "tier": 1,
+        "statText": "filler"
+      }
     ]
   },
   "desired": ["breach_armour_overcap_fire"],
@@ -1862,7 +2044,11 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { probabilityExact, probabilityMonteCarlo, SeededRng } from '../../src/lib/recombinator/index.js';
+import {
+  probabilityExact,
+  probabilityMonteCarlo,
+  SeededRng,
+} from '../../src/lib/recombinator/index.js';
 import type { Item, Mod } from '../../src/lib/recombinator/index.js';
 
 type Fixture = {
@@ -1876,8 +2062,11 @@ type Fixture = {
 const FIXTURES_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../fixtures');
 
 function loadFixture(name: string): {
-  item1: Item; item2: Item; desired: Mod[];
-  expected: number; tol: number;
+  item1: Item;
+  item2: Item;
+  desired: Mod[];
+  expected: number;
+  tol: number;
 } {
   const raw = JSON.parse(readFileSync(`${FIXTURES_DIR}/${name}`, 'utf8')) as Fixture;
   const fix = (it: Fixture['item1']): Item => ({ ...it, influence: it.influence ?? undefined });
@@ -1924,6 +2113,7 @@ git commit -m "test(engine): guide §6 grasping mail breach transfer = 50%"
 ## Task 14: Guide §7 worked example — wand counterweight ≈ 35%
 
 **Files:**
+
 - Create: `tests/fixtures/guide-wand-counterweight.json`
 - Modify: `tests/recombinator/guide-examples.test.ts`
 
@@ -1946,14 +2136,56 @@ Per guide §7: combine two wands with ≥6 total prefixes, where one side is "2p
     "synthesised": false,
     "implicits": [],
     "prefixes": [
-      { "id": "zaffre", "affix": "prefix", "category": "RegularExplicit", "name": "Zaffre", "tier": 1, "statText": "+# Mana" },
-      { "id": "archmage", "affix": "prefix", "category": "RegularExplicit", "name": "Archmage", "tier": 2, "statText": "+# spell/mana" },
-      { "id": "crafted_pref_a", "affix": "prefix", "category": "ExclusiveCrafted", "name": "Crafted A", "tier": 1, "statText": "crafted" }
+      {
+        "id": "zaffre",
+        "affix": "prefix",
+        "category": "RegularExplicit",
+        "name": "Zaffre",
+        "tier": 1,
+        "statText": "+# Mana"
+      },
+      {
+        "id": "archmage",
+        "affix": "prefix",
+        "category": "RegularExplicit",
+        "name": "Archmage",
+        "tier": 2,
+        "statText": "+# spell/mana"
+      },
+      {
+        "id": "crafted_pref_a",
+        "affix": "prefix",
+        "category": "ExclusiveCrafted",
+        "name": "Crafted A",
+        "tier": 1,
+        "statText": "crafted"
+      }
     ],
     "suffixes": [
-      { "id": "filler_a", "affix": "suffix", "category": "RegularExplicit", "name": "Filler A", "tier": 1, "statText": "filler" },
-      { "id": "aspect_a", "affix": "suffix", "category": "ExclusiveBeastAspect", "name": "Aspect", "tier": 1, "statText": "aspect" },
-      { "id": "named_craft_suf_a", "affix": "suffix", "category": "ExclusiveCrafted", "name": "of the Order", "tier": 1, "statText": "named crafted" }
+      {
+        "id": "filler_a",
+        "affix": "suffix",
+        "category": "RegularExplicit",
+        "name": "Filler A",
+        "tier": 1,
+        "statText": "filler"
+      },
+      {
+        "id": "aspect_a",
+        "affix": "suffix",
+        "category": "ExclusiveBeastAspect",
+        "name": "Aspect",
+        "tier": 1,
+        "statText": "aspect"
+      },
+      {
+        "id": "named_craft_suf_a",
+        "affix": "suffix",
+        "category": "ExclusiveCrafted",
+        "name": "of the Order",
+        "tier": 1,
+        "statText": "named crafted"
+      }
     ]
   },
   "item2": {
@@ -1968,14 +2200,56 @@ Per guide §7: combine two wands with ≥6 total prefixes, where one side is "2p
     "synthesised": false,
     "implicits": [],
     "prefixes": [
-      { "id": "runic", "affix": "prefix", "category": "RegularExplicit", "name": "Runic", "tier": 1, "statText": "+# spell damage" },
-      { "id": "crafted_pref_b1", "affix": "prefix", "category": "ExclusiveCrafted", "name": "Tora's", "tier": 1, "statText": "crafted" },
-      { "id": "crafted_pref_b2", "affix": "prefix", "category": "ExclusiveCrafted", "name": "It's", "tier": 1, "statText": "crafted" }
+      {
+        "id": "runic",
+        "affix": "prefix",
+        "category": "RegularExplicit",
+        "name": "Runic",
+        "tier": 1,
+        "statText": "+# spell damage"
+      },
+      {
+        "id": "crafted_pref_b1",
+        "affix": "prefix",
+        "category": "ExclusiveCrafted",
+        "name": "Tora's",
+        "tier": 1,
+        "statText": "crafted"
+      },
+      {
+        "id": "crafted_pref_b2",
+        "affix": "prefix",
+        "category": "ExclusiveCrafted",
+        "name": "It's",
+        "tier": 1,
+        "statText": "crafted"
+      }
     ],
     "suffixes": [
-      { "id": "filler_b", "affix": "suffix", "category": "RegularExplicit", "name": "Filler B", "tier": 1, "statText": "filler" },
-      { "id": "multimod", "affix": "suffix", "category": "ExclusiveCrafted", "name": "Can have multiple Crafted", "tier": 1, "statText": "multimod" },
-      { "id": "named_craft_suf_b", "affix": "suffix", "category": "ExclusiveCrafted", "name": "Chosen", "tier": 1, "statText": "named crafted" }
+      {
+        "id": "filler_b",
+        "affix": "suffix",
+        "category": "RegularExplicit",
+        "name": "Filler B",
+        "tier": 1,
+        "statText": "filler"
+      },
+      {
+        "id": "multimod",
+        "affix": "suffix",
+        "category": "ExclusiveCrafted",
+        "name": "Can have multiple Crafted",
+        "tier": 1,
+        "statText": "multimod"
+      },
+      {
+        "id": "named_craft_suf_b",
+        "affix": "suffix",
+        "category": "ExclusiveCrafted",
+        "name": "Chosen",
+        "tier": 1,
+        "statText": "named crafted"
+      }
     ]
   },
   "desired": ["zaffre", "archmage", "runic"],
@@ -1989,11 +2263,11 @@ Per guide §7: combine two wands with ≥6 total prefixes, where one side is "2p
 Append to `tests/recombinator/guide-examples.test.ts`:
 
 ```ts
-  it('§7: wand counterweight (3 desired prefixes) ≈ 35%', () => {
-    const { item1, item2, desired, expected, tol } = loadFixture('guide-wand-counterweight.json');
-    const exact = probabilityExact(item1, item2, desired);
-    expect(Math.abs(exact - expected)).toBeLessThan(tol);
-  });
+it('§7: wand counterweight (3 desired prefixes) ≈ 35%', () => {
+  const { item1, item2, desired, expected, tol } = loadFixture('guide-wand-counterweight.json');
+  const exact = probabilityExact(item1, item2, desired);
+  expect(Math.abs(exact - expected)).toBeLessThan(tol);
+});
 ```
 
 - [ ] **Step 3: Run test to verify it passes**
@@ -2002,7 +2276,7 @@ Append to `tests/recombinator/guide-examples.test.ts`:
 npm test -- tests/recombinator/guide-examples.test.ts
 ```
 
-Expected: PASS. If it fails *and* the value is consistently off in one direction, log `exact` and inspect — guide tolerance is widened to ±7% because the guide itself reports "approximate odds ≈ 35%."
+Expected: PASS. If it fails _and_ the value is consistently off in one direction, log `exact` and inspect — guide tolerance is widened to ±7% because the guide itself reports "approximate odds ≈ 35%."
 
 - [ ] **Step 4: Commit**
 
@@ -2016,6 +2290,7 @@ git commit -m "test(engine): guide §7 wand counterweight ≈ 35%"
 ## Task 15: Cross-check property test (probabilityExact ≈ Monte Carlo on random scenarios)
 
 **Files:**
+
 - Create: `tests/recombinator/cross-check.test.ts`
 
 - [ ] **Step 1: Write the failing test**
@@ -2024,7 +2299,9 @@ git commit -m "test(engine): guide §7 wand counterweight ≈ 35%"
 // tests/recombinator/cross-check.test.ts
 import { describe, it, expect } from 'vitest';
 import {
-  probabilityExact, probabilityMonteCarlo, SeededRng,
+  probabilityExact,
+  probabilityMonteCarlo,
+  SeededRng,
 } from '../../src/lib/recombinator/index.js';
 import type { Item, Mod, ModCategory } from '../../src/lib/recombinator/index.js';
 
@@ -2046,10 +2323,15 @@ function makeItem(rng: SeededRng, id: string, nP: number, nS: number, influenced
     attributeBase: 'str_int',
     defenceTags: ['armour', 'energy_shield'],
     influence: influenced ? 'warlord' : undefined,
-    corrupted: false, synthesised: false,
+    corrupted: false,
+    synthesised: false,
     implicits: [],
-    prefixes: Array.from({ length: nP }, (_, i) => makeMod(rng, parseInt(`${id}${i}1`, 36), 'prefix')),
-    suffixes: Array.from({ length: nS }, (_, i) => makeMod(rng, parseInt(`${id}${i}2`, 36), 'suffix')),
+    prefixes: Array.from({ length: nP }, (_, i) =>
+      makeMod(rng, parseInt(`${id}${i}1`, 36), 'prefix'),
+    ),
+    suffixes: Array.from({ length: nS }, (_, i) =>
+      makeMod(rng, parseInt(`${id}${i}2`, 36), 'suffix'),
+    ),
   };
 }
 
@@ -2072,7 +2354,8 @@ describe('cross-check: probabilityExact vs probabilityMonteCarlo', () => {
       const exact = probabilityExact(item1, item2, desired);
       const mcRng = new SeededRng(s + 1);
       const mc = probabilityMonteCarlo(item1, item2, desired, 30_000, mcRng);
-      if (Math.abs(exact - mc) > 0.015) failures.push(`scenario ${s}: exact=${exact.toFixed(4)} mc=${mc.toFixed(4)}`);
+      if (Math.abs(exact - mc) > 0.015)
+        failures.push(`scenario ${s}: exact=${exact.toFixed(4)} mc=${mc.toFixed(4)}`);
     }
     expect(failures).toEqual([]);
   });
@@ -2099,6 +2382,7 @@ git commit -m "test(engine): cross-check probabilityExact vs Monte Carlo"
 ## Task 16: CLI
 
 **Files:**
+
 - Create: `src/cli/main.ts`
 - Test: `tests/cli/main.test.ts`
 
@@ -2114,18 +2398,40 @@ const fixture = JSON.stringify({
   seed: 1,
   trials: 2000,
   item1: {
-    id: 'a', base: 'X', itemClass: 'Y', itemLevel: 86,
-    attributeBase: 'str_int', defenceTags: ['armour'],
-    corrupted: false, synthesised: false,
-    implicits: [], prefixes: [
-      { id: 'p1', affix: 'prefix', category: 'RegularExplicit', name: 'p1', tier: 1, statText: '', desired: true }
-    ], suffixes: [],
+    id: 'a',
+    base: 'X',
+    itemClass: 'Y',
+    itemLevel: 86,
+    attributeBase: 'str_int',
+    defenceTags: ['armour'],
+    corrupted: false,
+    synthesised: false,
+    implicits: [],
+    prefixes: [
+      {
+        id: 'p1',
+        affix: 'prefix',
+        category: 'RegularExplicit',
+        name: 'p1',
+        tier: 1,
+        statText: '',
+        desired: true,
+      },
+    ],
+    suffixes: [],
   },
   item2: {
-    id: 'b', base: 'X', itemClass: 'Y', itemLevel: 86,
-    attributeBase: 'str_int', defenceTags: ['armour'],
-    corrupted: false, synthesised: false,
-    implicits: [], prefixes: [], suffixes: [],
+    id: 'b',
+    base: 'X',
+    itemClass: 'Y',
+    itemLevel: 86,
+    attributeBase: 'str_int',
+    defenceTags: ['armour'],
+    corrupted: false,
+    synthesised: false,
+    implicits: [],
+    prefixes: [],
+    suffixes: [],
   },
 });
 
@@ -2161,7 +2467,10 @@ Expected: FAIL with `Cannot find module`.
 ```ts
 // src/cli/main.ts
 import {
-  probabilityExact, probabilityMonteCarlo, simulateBatch, SeededRng,
+  probabilityExact,
+  probabilityMonteCarlo,
+  simulateBatch,
+  SeededRng,
 } from '../lib/recombinator/index.js';
 import type { Item, Mod } from '../lib/recombinator/index.js';
 
@@ -2175,7 +2484,10 @@ export type CliInput = {
 
 export type CliOutput =
   | { command: 'probability'; exact: number; monteCarlo: number }
-  | { command: 'simulate'; results: Array<{ baseFromItem: 1 | 2; prefixes: string[]; suffixes: string[] }> };
+  | {
+      command: 'simulate';
+      results: Array<{ baseFromItem: 1 | 2; prefixes: string[]; suffixes: string[] }>;
+    };
 
 export async function runCli(jsonInput: string): Promise<CliOutput> {
   const input = JSON.parse(jsonInput) as CliInput;
@@ -2183,8 +2495,10 @@ export async function runCli(jsonInput: string): Promise<CliOutput> {
   const rng = new SeededRng(seed);
 
   const allMods: Mod[] = [
-    ...input.item1.prefixes, ...input.item1.suffixes,
-    ...input.item2.prefixes, ...input.item2.suffixes,
+    ...input.item1.prefixes,
+    ...input.item1.suffixes,
+    ...input.item2.prefixes,
+    ...input.item2.suffixes,
   ];
   const desired = allMods.filter((m) => m.desired === true);
 
@@ -2210,14 +2524,18 @@ export async function runCli(jsonInput: string): Promise<CliOutput> {
 // Entry point: read stdin, invoke runCli, print stdout.
 if (process.argv[1] && process.argv[1].endsWith('main.ts')) {
   let input = '';
-  process.stdin.on('data', (chunk) => { input += chunk; });
+  process.stdin.on('data', (chunk) => {
+    input += chunk;
+  });
   process.stdin.on('end', () => {
-    runCli(input).then((out) => {
-      process.stdout.write(JSON.stringify(out, null, 2) + '\n');
-    }).catch((err) => {
-      process.stderr.write(`error: ${err.message}\n`);
-      process.exit(1);
-    });
+    runCli(input)
+      .then((out) => {
+        process.stdout.write(JSON.stringify(out, null, 2) + '\n');
+      })
+      .catch((err) => {
+        process.stderr.write(`error: ${err.message}\n`);
+        process.exit(1);
+      });
   });
 }
 ```
@@ -2242,7 +2560,7 @@ Expected output: a JSON object with `exact: 0.59` and `monteCarlo: ~0.59`.
 
 ```bash
 git add src/cli/main.ts tests/cli/main.test.ts package.json
-git commit -m "feat(cli): resimbulator-engine CLI for stdin/stdout exercise"
+git commit -m "feat(cli): Resimbinator -engine CLI for stdin/stdout exercise"
 ```
 
 ---
@@ -2250,12 +2568,13 @@ git commit -m "feat(cli): resimbulator-engine CLI for stdin/stdout exercise"
 ## Task 17: README
 
 **Files:**
+
 - Create: `README.md`
 
 - [ ] **Step 1: Write `README.md`**
 
-```markdown
-# Resimbulator
+````markdown
+# Resimbinator
 
 A web-app simulator for Path of Exile 1's patch-3.25 Recombinator. Currently in active build; **this repository contains only the engine layer** as of Plan 1.
 
@@ -2280,6 +2599,7 @@ npm install
 npm run typecheck
 npm test
 ```
+````
 
 ## CLI
 
@@ -2301,14 +2621,15 @@ tests/fixtures/         guide worked-example fixtures
 ## License
 
 MIT.
-```
+
+````
 
 - [ ] **Step 2: Commit**
 
 ```bash
 git add README.md
 git commit -m "docs: README explaining Plan-1 scope and how to run the engine"
-```
+````
 
 ---
 

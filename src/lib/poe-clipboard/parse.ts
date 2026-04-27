@@ -8,8 +8,8 @@ import {
 } from './flags.js';
 
 const METADATA_PREFIXES = [
-  'Item Class:', 'Rarity:', 'Quality:', 'Armour:', 'Energy Shield:', 'Evasion Rating:',
-  'Ward:', 'Block:', 'Critical Strike Chance:', 'Attacks per Second:',
+  'Item Class:', 'Rarity:', 'Quality', 'Armour:', 'Energy Shield:', 'Evasion Rating:',
+  'Ward:', 'Block:', 'Chance to Block:', 'Critical Strike Chance:', 'Attacks per Second:',
   'Physical Damage:', 'Elemental Damage:', 'Chaos Damage:',
   'Requirements:', 'Level:', 'Str:', 'Dex:', 'Int:',
   'Sockets:', 'Item Level:', 'Talisman Tier:',
@@ -26,7 +26,8 @@ function isStandaloneFlagSection(section: string[]): boolean {
   if (section.length !== 1) return false;
   const line = section[0]!.trim();
   return line === 'Corrupted' || line === 'Synthesised Item' ||
-    line === 'Mirrored' || /\bItem$/.test(line); // catches "Warlord Item" etc.
+    line === 'Mirrored' || line === 'Split' ||
+    /\bItem$/.test(line); // catches "Warlord Item" etc.
 }
 
 export function parse(input: string): ParsedItem {

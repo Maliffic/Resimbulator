@@ -37,7 +37,9 @@ describe('lookupByNameTierAffix', () => {
     expect(lookupByNameTierAffix(db, 'Tyrannical', 1, 'suffix')).toBeUndefined();
   });
 
-  it('returns undefined when tier mismatches', () => {
-    expect(lookupByNameTierAffix(db, 'Tyrannical', 99, 'prefix')).toBeUndefined();
+  it('falls back to a name+affix match when tier mismatches (clipboard tiers are per-item-class)', () => {
+    const m = lookupByNameTierAffix(db, 'Tyrannical', 99, 'prefix');
+    expect(m?.name).toBe('Tyrannical');
+    expect(m?.affix).toBe('prefix');
   });
 });

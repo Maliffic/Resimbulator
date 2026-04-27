@@ -9,5 +9,5 @@ export { TABLE1, sampleModCount, expectedDistribution } from './table1.js';
 export { computeItemLevel } from './ilevel.js';
 export { isEligible, isExclusive } from './eligibility.js';
 export { simulateOnce, simulateBatch } from './simulate.js';
-export { probabilityExact, probabilityMonteCarlo, allDesiredHit } from './probability.js';
+export { probabilityExact, probabilityExactByBase, probabilityMonteCarlo, allDesiredHit } from './probability.js';
 export { isOneOneSpecialCase, sampleOneOneOutcome } from './special-cases.js';

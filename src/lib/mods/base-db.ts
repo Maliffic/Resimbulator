@@ -59,10 +59,57 @@ const ENTRIES: readonly BaseDef[] = [
   { name: 'Royal Skean',        itemClass: 'Daggers',      attributeBase: 'dex_int', defenceTags: [] },
   // Sceptres
   { name: 'Carnal Sceptre',     itemClass: 'Sceptres',     attributeBase: 'str_int', defenceTags: [] },
+  // Shields — INT (energy shield)
+  { name: 'Spirit Shield',          itemClass: 'Shields', attributeBase: 'int',     defenceTags: ['energy_shield'] },
+  { name: 'Vaal Spirit Shield',     itemClass: 'Shields', attributeBase: 'int',     defenceTags: ['energy_shield'] },
+  { name: 'Titanium Spirit Shield', itemClass: 'Shields', attributeBase: 'int',     defenceTags: ['energy_shield'] },
+  // Shields — DEX (evasion)
+  { name: 'Buckler',           itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  { name: 'Painted Buckler',   itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  { name: 'Hammered Buckler',  itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  { name: 'War Buckler',       itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  { name: 'Gilded Buckler',    itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  { name: 'Oak Buckler',       itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  { name: 'Enameled Buckler',  itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  { name: 'Corrugated Buckler',itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  { name: 'Battle Buckler',    itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  { name: 'Golden Buckler',    itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  { name: 'Ironwood Buckler',  itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  { name: 'Lacquered Buckler', itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  { name: 'Vaal Buckler',      itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  { name: 'Crusader Buckler',  itemClass: 'Shields', attributeBase: 'dex',     defenceTags: ['evasion'] },
+  // Shields — STR (armour)
+  { name: 'Tower Shield',      itemClass: 'Shields', attributeBase: 'str',     defenceTags: ['armour'] },
+  { name: 'Pinnacle Tower Shield', itemClass: 'Shields', attributeBase: 'str', defenceTags: ['armour'] },
+  // Shields — STR/INT (armour + ES)
+  { name: 'Lacquered Garb',    itemClass: 'Shields', attributeBase: 'str_int', defenceTags: ['armour', 'energy_shield'] },
+  // Shields — STR/DEX (armour + evasion)
+  { name: 'Two-Stone Shield',  itemClass: 'Shields', attributeBase: 'str_dex', defenceTags: ['armour', 'evasion'] },
+  // Shields — DEX/INT (evasion + ES)
+  { name: 'Walnut Shield',     itemClass: 'Shields', attributeBase: 'dex_int', defenceTags: ['evasion', 'energy_shield'] },
+];
+
+// Synthesised items prepend a prefix word to the base name (e.g. "Transfer-attuned Spirit Shield").
+// Strip these so synthesised bases still resolve.
+const SYNTHESIS_PREFIXES: readonly string[] = [
+  'Transfer-attuned', 'Mirrored', 'Flaring', 'Subsuming', 'Enduring', 'Echoing',
+  'Stalwart', 'Otherworldly', 'Foreboding', 'Glimmering', 'Vital', 'Surging',
+  'Twilight', 'Ageless', 'Stout', 'Blasphemous', 'Searching', 'Veiled',
+  'Whispering', 'Awakened', 'Ancient', 'Charged', 'Toxic', 'Auspicious',
 ];
 
 export const BASE_DB: BaseDb = new Map(ENTRIES.map((e) => [e.name, e]));
 
 export function lookupBase(name: string): BaseDef | undefined {
-  return BASE_DB.get(name);
+  const direct = BASE_DB.get(name);
+  if (direct) return direct;
+  // Try stripping a synthesised prefix word.
+  for (const p of SYNTHESIS_PREFIXES) {
+    if (name.startsWith(`${p} `)) {
+      const stripped = name.slice(p.length + 1);
+      const hit = BASE_DB.get(stripped);
+      if (hit) return hit;
+    }
+  }
+  return undefined;
 }

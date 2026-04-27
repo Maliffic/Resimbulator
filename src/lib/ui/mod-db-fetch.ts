@@ -2,16 +2,23 @@
 import type { ModDef, ModDb } from '$lib/mods/index.js';
 import { loadModDb } from '$lib/mods/index.js';
 
-const DB_NAME = 'resimbulator';
-const DB_VERSION = 1;
+const DB_NAME = 'Resimbinator ';
+// Bump when the ModDef schema changes — IndexedDB upgrade clears the stale store.
+const DB_VERSION = 2;
 const STORE = 'mod-db';
 const KEY = 'singleton';
+
+function upgrade(req: IDBOpenDBRequest): void {
+  const db = req.result;
+  if (db.objectStoreNames.contains(STORE)) db.deleteObjectStore(STORE);
+  db.createObjectStore(STORE);
+}
 
 export async function loadFromCache(): Promise<ModDef[] | null> {
   if (typeof indexedDB === 'undefined') return null;
   return new Promise((resolve) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = () => req.result.createObjectStore(STORE);
+    req.onupgradeneeded = () => upgrade(req);
     req.onsuccess = () => {
       const tx = req.result.transaction(STORE, 'readonly');
       const get = tx.objectStore(STORE).get(KEY);
@@ -26,7 +33,7 @@ export async function saveToCache(entries: ModDef[]): Promise<void> {
   if (typeof indexedDB === 'undefined') return;
   return new Promise((resolve) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = () => req.result.createObjectStore(STORE);
+    req.onupgradeneeded = () => upgrade(req);
     req.onsuccess = () => {
       const tx = req.result.transaction(STORE, 'readwrite');
       tx.objectStore(STORE).put(entries, KEY);

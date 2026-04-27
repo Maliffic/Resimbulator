@@ -38,41 +38,63 @@ export function probabilityMonteCarlo(
  */
 export function probabilityExact(item1: Item, item2: Item, desired: Mod[]): number {
   if (desired.length === 0) return 1;
+  const split = probabilityExactByBase(item1, item2, desired);
+  return split.weighted;
+}
 
-  // Special case 1p + 1s.
-  if (isOneOneSpecialCase(item1, item2)) return probExactOneOne(item1, item2, desired);
+/**
+ * Per-base conditional probabilities. `fromItem1` is P(all desired on result | base picked from item 1),
+ * `fromItem2` is the same for item 2, and `weighted` is the unconditional probability (0.5 * fromItem1 + 0.5 * fromItem2).
+ *
+ * Useful for the NNN ladder strategy: when one base's NNN mods can't transfer to the other, the
+ * per-base split shows where the success comes from.
+ */
+export function probabilityExactByBase(
+  item1: Item,
+  item2: Item,
+  desired: Mod[],
+): { fromItem1: number; fromItem2: number; weighted: number } {
+  if (desired.length === 0) return { fromItem1: 1, fromItem2: 1, weighted: 1 };
 
+  if (isOneOneSpecialCase(item1, item2)) {
+    const a = probExactOneOneForBase(item1, item2, desired, 1);
+    const b = probExactOneOneForBase(item1, item2, desired, 2);
+    return { fromItem1: a, fromItem2: b, weighted: 0.5 * a + 0.5 * b };
+  }
+
+  const a = probExactStandardForBase(item1, item2, desired, 1);
+  const b = probExactStandardForBase(item1, item2, desired, 2);
+  return { fromItem1: a, fromItem2: b, weighted: 0.5 * a + 0.5 * b };
+}
+
+function probExactStandardForBase(item1: Item, item2: Item, desired: Mod[], fromPick: 1 | 2): number {
   const prefixPool = [...item1.prefixes, ...item2.prefixes];
   const suffixPool = [...item1.suffixes, ...item2.suffixes];
   const totalP = prefixPool.length;
   const totalS = suffixPool.length;
   const ilvl = computeItemLevel(item1.itemLevel, item2.itemLevel);
-
+  const chosen = fromPick === 1 ? item1 : item2;
+  const baseCtx: BaseContext = {
+    base: chosen.base,
+    itemClass: chosen.itemClass,
+    attributeBase: chosen.attributeBase,
+    defenceTags: chosen.defenceTags,
+    influence: chosen.influence,
+    itemLevel: ilvl,
+    hostItemId: chosen.id,
+  };
+  const rowP = TABLE1[totalP]!;
+  const rowS = TABLE1[totalS]!;
   let total = 0;
-  for (const fromPick of [1, 2] as const) {
-    const chosen = fromPick === 1 ? item1 : item2;
-    const baseCtx: BaseContext = {
-      base: chosen.base,
-      itemClass: chosen.itemClass,
-      attributeBase: chosen.attributeBase,
-      defenceTags: chosen.defenceTags,
-      influence: chosen.influence,
-      itemLevel: ilvl,
-      hostItemId: chosen.id,
-    };
-    const baseProb = 0.5;
-    const rowP = TABLE1[totalP]!;
-    const rowS = TABLE1[totalS]!;
-    for (let nP = 0; nP <= 3; nP++) {
-      for (let nS = 0; nS <= 3; nS++) {
-        const wP = rowP[nP] ?? 0;
-        const wS = rowS[nS] ?? 0;
-        if (wP === 0 || wS === 0) continue;
-        for (const order of ['prefix-first', 'suffix-first'] as const) {
-          const orderProb = 0.5;
-          const condProb = probConditional(prefixPool, suffixPool, nP, nS, baseCtx, order, desired);
-          total += baseProb * wP * wS * orderProb * condProb;
-        }
+  for (let nP = 0; nP <= 3; nP++) {
+    for (let nS = 0; nS <= 3; nS++) {
+      const wP = rowP[nP] ?? 0;
+      const wS = rowS[nS] ?? 0;
+      if (wP === 0 || wS === 0) continue;
+      for (const order of ['prefix-first', 'suffix-first'] as const) {
+        const orderProb = 0.5;
+        const condProb = probConditional(prefixPool, suffixPool, nP, nS, baseCtx, order, desired);
+        total += wP * wS * orderProb * condProb;
       }
     }
   }
@@ -164,30 +186,27 @@ function probConditional(
   });
 }
 
-function probExactOneOne(item1: Item, item2: Item, desired: Mod[]): number {
+function probExactOneOneForBase(item1: Item, item2: Item, desired: Mod[], fromPick: 1 | 2): number {
   const ilvl = computeItemLevel(item1.itemLevel, item2.itemLevel);
+  const chosen = fromPick === 1 ? item1 : item2;
+  const baseCtx: BaseContext = {
+    base: chosen.base,
+    itemClass: chosen.itemClass,
+    attributeBase: chosen.attributeBase,
+    defenceTags: chosen.defenceTags,
+    influence: chosen.influence,
+    itemLevel: ilvl,
+    hostItemId: chosen.id,
+  };
+  const allP = [...item1.prefixes, ...item2.prefixes];
+  const allS = [...item1.suffixes, ...item2.suffixes];
+  // 1p/0s, 0p/1s, 1p/1s each 1/3.
   let total = 0;
-  for (const fromPick of [1, 2] as const) {
-    const chosen = fromPick === 1 ? item1 : item2;
-    const baseCtx: BaseContext = {
-      base: chosen.base,
-      itemClass: chosen.itemClass,
-      attributeBase: chosen.attributeBase,
-      defenceTags: chosen.defenceTags,
-      influence: chosen.influence,
-      itemLevel: ilvl,
-      hostItemId: chosen.id,
-    };
-    const baseProb = 0.5;
-    const allP = [...item1.prefixes, ...item2.prefixes];
-    const allS = [...item1.suffixes, ...item2.suffixes];
-    // 1p/0s, 0p/1s, 1p/1s each 1/3.
-    total += baseProb * (1 / 3) * probConditional(allP, allS, 1, 0, baseCtx, 'prefix-first', desired);
-    total += baseProb * (1 / 3) * probConditional(allP, allS, 0, 1, baseCtx, 'suffix-first', desired);
-    total += baseProb * (1 / 3) * 0.5 * (
-      probConditional(allP, allS, 1, 1, baseCtx, 'prefix-first', desired) +
-      probConditional(allP, allS, 1, 1, baseCtx, 'suffix-first', desired)
-    );
-  }
+  total += (1 / 3) * probConditional(allP, allS, 1, 0, baseCtx, 'prefix-first', desired);
+  total += (1 / 3) * probConditional(allP, allS, 0, 1, baseCtx, 'suffix-first', desired);
+  total += (1 / 3) * 0.5 * (
+    probConditional(allP, allS, 1, 1, baseCtx, 'prefix-first', desired) +
+    probConditional(allP, allS, 1, 1, baseCtx, 'suffix-first', desired)
+  );
   return total;
 }
