@@ -14,9 +14,10 @@
     chanceFromItem2: number;
     desiredCount: number;
     batchTrials: number;
+    onGenerate: () => void;
   };
 
-  let { item1, item2, chance, chanceFromItem1, chanceFromItem2, desiredCount, batchTrials }: Props = $props();
+  let { item1, item2, chance, chanceFromItem1, chanceFromItem2, desiredCount, batchTrials, onGenerate }: Props = $props();
 
   let result = $state<RecombineResult | null>(null);
   let batchData = $state<{
@@ -162,7 +163,19 @@
       </button>
     </div>
   {:else}
-    <div class="text-poe-dim text-sm">Paste items in both panels to see chance.</div>
+    <div class="flex flex-col items-center gap-3">
+      <div class="text-poe-dim text-sm">Paste items in both panels to see chance.</div>
+      <div class="text-poe-deepdim text-[11px] uppercase tracking-[0.15em]">or</div>
+      <button
+        class="bg-poe-border hover:bg-[#4d4030] text-poe-rare rounded px-4 py-2 text-sm font-semibold uppercase tracking-wide transition"
+        onclick={onGenerate}
+      >
+        Generate random pair
+      </button>
+      <div class="text-[11px] text-poe-deepdim max-w-[14rem]">
+        Two random items of the same class, with real mods sampled from the database.
+      </div>
+    </div>
   {/if}
 </div>
 

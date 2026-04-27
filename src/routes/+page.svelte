@@ -7,6 +7,7 @@
   import { getModDb } from '$lib/ui/mod-db-fetch.js';
   import { saveState, loadState } from '$lib/ui/persist.js';
   import { encodeStateToUrl, decodeStateFromUrl } from '$lib/ui/url-state.js';
+  import { generateRandomPair } from '$lib/ui/generate.js';
   import type { ModDb } from '$lib/mods/index.js';
   import TopBar from '../components/TopBar.svelte';
   import ItemPanel from '../components/ItemPanel.svelte';
@@ -66,9 +67,16 @@
   function handleReset() {
     if (confirm('Clear both items?')) reset(appState);
   }
+
+  function handleGenerate() {
+    if (!modDb) return;
+    const { item1, item2 } = generateRandomPair(modDb);
+    setItem(appState, 1, item1);
+    setItem(appState, 2, item2);
+  }
 </script>
 
-<TopBar onShare={handleShare} onReset={handleReset} onHelp={() => (helpOpen = true)} />
+<TopBar onShare={handleShare} onReset={handleReset} onHelp={() => (helpOpen = true)} onGenerate={handleGenerate} />
 
 {#if helpOpen}
   <HelpDialog onClose={() => (helpOpen = false)} />
@@ -100,6 +108,7 @@
         chanceFromItem2={chanceByBase.fromItem2}
         desiredCount={desiredCount}
         batchTrials={appState.settings.batchSimTrials}
+        onGenerate={handleGenerate}
       />
       <ItemPanel
         item={appState.item2}
