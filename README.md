@@ -23,7 +23,7 @@ A web-app simulator for Path of Exile 1's patch-3.25 (Settlers of Kalguur) Recom
 **Mods + categorizer (Plan 3):**
 
 - Hand-curated base-items database (~40 popular Settlers crafting bases)
-- RePoE-derived mod database build script (`npm run update-mod-db`)
+- RePoE-derived mod database build script (`bun run update-mod-db`)
 - Categorizer: maps each `ParsedMod` to the correct `ModCategory` and applies per-mod requirements
 - Translator: `ParsedItem` → engine `Item`, ready for the simulator
 
@@ -39,15 +39,15 @@ A web-app simulator for Path of Exile 1's patch-3.25 (Settlers of Kalguur) Recom
 ## Setup
 
 ```bash
-npm install
-npm run typecheck
-npm test
+bun install
+bun run typecheck
+bun test
 ```
 
 ## Run the app locally
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 Open `http://localhost:5173`. Paste two items from PoE (Ctrl+C in-game), tick the mods you want, see the chance update live, click Recombine.
@@ -55,7 +55,7 @@ Open `http://localhost:5173`. Paste two items from PoE (Ctrl+C in-game), tick th
 Production build:
 
 ```bash
-npm run build && npm run preview
+bun run build && bun run preview
 ```
 
 ## Deploy
@@ -73,7 +73,7 @@ The app is a static SPA — works on any static host: GitHub Pages, Netlify, Clo
 The UI ships with a small dev-fixture mod database (`static/mod-db-fixture.json`) that covers the categorizer's rule-coverage tests but isn't comprehensive. To populate the full RePoE-derived database (one-time, requires network):
 
 ```bash
-npm run update-mod-db
+bun run update-mod-db
 ```
 
 Writes `static/mod-db.json` (~1-2 MB gzipped). The UI prefers `mod-db.json` and falls back to the fixture.
@@ -83,7 +83,7 @@ Writes `static/mod-db.json` (~1-2 MB gzipped). The UI prefers `mod-db.json` and 
 There's also a stdin/stdout CLI for headless use:
 
 ```bash
-echo '{"command":"probability","seed":1,"trials":10000,"item1":{...},"item2":{...}}' | npm run engine
+echo '{"command":"probability","seed":1,"trials":10000,"item1":{...},"item2":{...}}' | bun run engine
 ```
 
 Commands: `probability`, `simulate`, `parse`, `translate`. See `tests/cli/main.test.ts` for input shapes.
@@ -105,7 +105,7 @@ docs/superpowers/        design + implementation plans
 
 ## Validation
 
-`npm test` executes the full suite (currently 146 tests across 26 files):
+`bun test` executes the full suite (currently 146 tests across 26 files):
 
 - Engine unit + integration tests, guide examples, cross-check property test
 - Parser unit tests + fixture snapshot tests
