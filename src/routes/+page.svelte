@@ -129,6 +129,7 @@
     item1={appState.item1}
     item2={appState.item2}
     saved={savedScenarios}
+    costPerTry={appState.settings.costPerTry}
     onClose={() => (libraryOpen = false)}
     onLoad={handleLoadPair}
     onSave={handleSaveScenario}
